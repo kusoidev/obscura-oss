@@ -390,7 +390,7 @@
     'Junk Expressions', 'Debug Mode',
     'Opaque Predicates', 'Second XOR Layer', 'Scramble Constants',
     'Integrity Hash', 'Dead Code Injection', 'Anti-Debug Traps', 'Stack Encoding',
-    'Polymorphic Opcodes'
+    'Polymorphic Opcodes', 'Opcode Segments'
   ];
   var UNLOCKED_FEATURES = ['Junk Expressions', 'Debug Mode'];
   var PRO_FEATURE_DESCS = {
@@ -403,7 +403,8 @@
     'Dead Code Injection': 'Insert unreachable code paths that never execute.',
     'Anti-Debug Traps': 'Insert timing checks and debugger detection logic.',
     'Stack Encoding': 'Encode stack operations using custom encoding scheme.',
-    'Polymorphic Opcodes': 'Generate different opcode mappings per obfuscation run.'
+    'Polymorphic Opcodes': 'Generate different opcode mappings per obfuscation run.',
+    'Opcode Segments': 'Split dispatch into multiple lookup tables.'
   };
 
   var state = { mangleIdentifiers: true, injectJunkExpressions: true, xorEncryptBytecode: true, minifyOutput: true, debugMode: false, numSegments: 0 };
@@ -469,7 +470,7 @@
       var tileBody = document.createElement('div');
       tileBody.className = 'tile-body';
       tileBody.style.cssText = 'flex:1;min-width:0';
-      tileBody.innerHTML = '<div class="tile-label">Advanced Protection</div><div class="tile-desc">10 obfuscation passes - 2 free, 8 pro</div>';
+      tileBody.innerHTML = '<div class="tile-label">Advanced Protection</div><div class="tile-desc">11 obfuscation passes - 2 free, 9 pro</div>';
 
       var tileControls = document.createElement('div');
       tileControls.className = 'tile-controls';
@@ -494,32 +495,35 @@
       for (var pi = 0; pi < PRO_FEATURES.length; pi++) {
         var featureName = PRO_FEATURES[pi];
         var row = document.createElement('div');
-        row.style.cssText = 'display:flex;flex-direction:column;gap:2px;padding:7px 8px;border-radius:var(--radius-sm);cursor:pointer;transition:background 0.12s;';
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:7px 8px;border-radius:var(--radius-sm);cursor:pointer;transition:background 0.12s;';
         row.onmouseenter = function(){ this.style.background = 'var(--surface-hover)'; };
         row.onmouseleave = function(){ this.style.background = ''; };
 
-        var rowTop = document.createElement('div');
-        rowTop.style.cssText = 'display:flex;align-items:center;gap:8px;';
-        (UNLOCKED_FEATURES.indexOf(featureName) >= 0 ? '<span style="display:inline-block;width:11px;height:11px;border-radius:50%;flex-shrink:0;background:' + (state[featureName === 'Junk Expressions' ? 'injectJunkExpressions' : 'debugMode'] ? 'var(--green)' : 'var(--text-muted)') + '"></span> ' : '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;color:var(--text-muted)"><rect x="3.5" y="7" width="9" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' + ' ') +
-          '<span style="font-size:12px;font-weight:600;color:var(--text-secondary);">' + featureName + '</span>';
+        var rowInfo = document.createElement('div');
+        rowInfo.style.cssText = 'flex:1;min-width:0;padding-right:8px;';
+        rowInfo.innerHTML = '<div style="font-size:12px;font-weight:600;color:var(--text-secondary);">' + featureName + '</div>' +
+          '<div style="font-size:10px;color:var(--text-muted);margin-top:1px;line-height:1.3;">' + PRO_FEATURE_DESCS[featureName] + '</div>';
 
-        var rowDesc = document.createElement('div');
-        rowDesc.style.cssText = 'font-size:10px;color:var(--text-muted);padding-left:19px;line-height:1.4;';
-        rowDesc.textContent = PRO_FEATURE_DESCS[featureName] || '';
+        var isUnlocked = UNLOCKED_FEATURES.indexOf(featureName) >= 0;
+        if (isUnlocked) {
+          var _ukey = featureName === 'Junk Expressions' ? 'injectJunkExpressions' : 'debugMode';
+          var rowToggle = document.createElement('div');
+          rowToggle.className = 'toggle' + (state[_ukey] ? ' on' : '');
+          rowToggle.style.cssText = 'width:34px;height:20px;border-radius:20px;position:relative;cursor:pointer;flex-shrink:0;';
+          row.appendChild(rowInfo);
+          row.appendChild(rowToggle);
+          (function(key, toggle) {
+            row.addEventListener('click', function() { state[key] = !state[key]; if (state[key]) { toggle.classList.add('on'); } else { toggle.classList.remove('on'); } });
+          })(_ukey, rowToggle);
+        } else {
+          row.appendChild(rowInfo);
+          var lockEl = document.createElement('div');
+          lockEl.style.cssText = 'color:oklch(58% 0.015 80);flex-shrink:0;display:flex;align-items:center;';
+          lockEl.innerHTML = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none"><rect x="3.5" y="7" width="9" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+          row.appendChild(lockEl);
+          row.addEventListener('click', (function(fn) { return function() { showPaywallMessage(fn); }; })(featureName));
+        }
 
-        row.appendChild(rowTop);
-        row.appendChild(rowDesc);
-        row.addEventListener('click', (function(fn) {
-          return function() {
-            if (UNLOCKED_FEATURES.indexOf(fn) >= 0) {
-              var key = fn === 'Junk Expressions' ? 'injectJunkExpressions' : 'debugMode';
-              state[key] = !state[key];
-              buildUI();
-            } else {
-              showPaywallMessage(fn);
-            }
-          };
-        })(featureName));
         featuresInner.appendChild(row);
       }
 
@@ -538,18 +542,6 @@
 
       list.appendChild(proTile);
 
-      var segTile = document.createElement('div');
-      segTile.className = 'option-tile';
-      segTile.style.cursor = 'pointer';
-      segTile.innerHTML =
-        '<div class="tile-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M4 3V1M8 3V1M12 3V1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>' +
-        '<div class="tile-body"><div class="tile-label">Opcode Segments</div><div class="tile-desc">Split dispatch into multiple lookup tables</div></div>' +
-        '<div class="lock-icon" style="flex-shrink:0">' +
-          '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="3.5" y="7" width="9" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' +
-          '<div class="lock-tt">Obscura Pro feature</div>' +
-        '</div>';
-      segTile.addEventListener('click', function() { showPaywallMessage('Opcode Segments'); });
-      list.appendChild(segTile);
   }
 
   function applyPreset(preset) {
