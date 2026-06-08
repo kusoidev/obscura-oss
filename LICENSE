@@ -1,0 +1,40 @@
+Obscura — JS Bytecode Obfuscator
+Copyright (c) 2026 Kusoi
+
+This software is provided under a dual license:
+
+1. FREE LICENSE — PERSONAL AND NON-COMMERCIAL USE
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to use,
+copy, modify, and distribute the Software for personal, educational, research,
+and open source purposes only, subject to the following conditions:
+
+- The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+- You may NOT sell the Software, fork it with modifications and sell the
+  resulting work, or otherwise commercialize the Software itself.
+- You may NOT use the Software in any product or service that generates revenue
+  without a commercial license.
+
+2. COMMERCIAL LICENSE — REQUIRED FOR BUSINESS USE
+
+Any use of the Software by a business, company, or entity that generates
+revenue requires a paid commercial license. This includes but is not limited to:
+
+- Incorporating the Software into a commercial product
+- Using the Software to obfuscate code that ships in a paid product
+- Offering obfuscation as a service using the Software
+
+Contact the author for commercial licensing terms and pricing.
+
+Purchasing a commercial license also grants access to the full protection suite
+(vm-obfuscator-v3) with all advanced obfuscation passes.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

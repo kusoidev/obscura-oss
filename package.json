@@ -1,0 +1,23 @@
+{
+  "name": "obscura",
+  "version": "1.0.0",
+  "description": "JS VM Obfuscator - Community Edition",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc && cp src/runtime/async-vm-template.js dist/runtime/ && cp src/runtime/dispatch-gen.js dist/runtime/ && mkdir -p dist/web && cp src/web/index.html dist/web/",
+    "web": "node dist/server.js",
+    "test": "echo 'No tests yet'"
+  },
+  "dependencies": {
+    "acorn": "^8.11.0",
+    "acorn-walk": "^8.3.5",
+    "astring": "^1.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "assemblyscript": "^0.28.17",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.3.0"
+  },
+  "repository": "https://github.com/obscura-dev/obscura"
+}

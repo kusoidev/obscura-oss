@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Compiled JS (except runtime template)
+*.js
+!src/runtime/async-vm-template.js
+!src/runtime/vm-template.js
+
+# TypeScript declaration maps
+*.d.ts
+*.js.map
+
+# Backup files from patch tool
+*.bak.*
+
+# Test output artifacts
+tests/*-out*.js
+tests/*-output*.js
+tests/*-test*.js
+tests/*-final*.js
+tests/*-raw*.js
+tests/*-debug*.js
+tests/*-hardened*.js
+tests/minimal-*.js
+tests/out*.js
+tests/timer-test.js
+
+# Root-level test/debug files
+test_*.js
+run_full_test.js
+test-transformer.js
+test_input.js
+test_output*.js
+
+# Temp directories
+tmp_test_output/
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+target/
