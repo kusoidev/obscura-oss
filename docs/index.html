@@ -387,11 +387,15 @@
 <script src="obscura-browser.js"></script>
 <script>
   var PRO_FEATURES = [
+    'Junk Expressions', 'Debug Mode',
     'Opaque Predicates', 'Second XOR Layer', 'Scramble Constants',
     'Integrity Hash', 'Dead Code Injection', 'Anti-Debug Traps', 'Stack Encoding',
     'Polymorphic Opcodes'
   ];
+  var UNLOCKED_FEATURES = ['Junk Expressions', 'Debug Mode'];
   var PRO_FEATURE_DESCS = {
+    'Junk Expressions': 'Add meaningless arithmetic expressions that do not affect execution but complicate reverse engineering.',
+    'Debug Mode': 'Enable debug output and detailed logging (for testing).',
     'Opaque Predicates': 'Insert conditional branches that always evaluate to the same value, confusing static analysis.',
     'Second XOR Layer': 'Apply an additional XOR encryption pass to bytecode.',
     'Scramble Constants': 'Shuffle constant pool entries to hinder pattern matching.',
@@ -434,10 +438,8 @@
 
       var free = [
         { key: 'mangleIdentifiers', label: 'Identifier Mangling', desc: 'Rename all variables to random strings', icon: '<circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' },
-        { key: 'injectJunkExpressions', label: 'Junk Expressions', desc: 'Scatter random assignments throughout code', icon: '<path d="M3 6h10M7 3v10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M5 9l3-3 3 3M11 7l-3 3-3-3" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>' },
         { key: 'xorEncryptBytecode', label: 'XOR Bytecode Encryption', desc: 'Encrypt bytecode with derived XOR key', icon: '<path d="M2 8l3-6h6l3 6M3 10l3 6h5l3-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' },
-        { key: 'minifyOutput', label: 'Minify Output', desc: 'Strip whitespace and comments from final output', icon: '<path d="M3 4h10v8H3z" stroke="currentColor" stroke-width="1.5"/><path d="M6 8h4M8 6v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' },
-        { key: 'debugMode', label: 'Debug Mode', desc: 'Emit VM state to console for debugging', icon: '<rect x="3" y="4" width="10" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M6 7v2M10 7v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' }
+        { key: 'minifyOutput', label: 'Minify Output', desc: 'Strip whitespace and comments from final output', icon: '<path d="M3 4h10v8H3z" stroke="currentColor" stroke-width="1.5"/><path d="M6 8h4M8 6v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' }
       ];
 
       for (var fi = 0; fi < free.length; fi++) {
@@ -467,7 +469,7 @@
       var tileBody = document.createElement('div');
       tileBody.className = 'tile-body';
       tileBody.style.cssText = 'flex:1;min-width:0';
-      tileBody.innerHTML = '<div class="tile-label">Advanced Protection</div><div class="tile-desc">8 additional obfuscation passes</div>';
+      tileBody.innerHTML = '<div class="tile-label">Advanced Protection</div><div class="tile-desc">10 obfuscation passes - 2 free, 8 pro</div>';
 
       var tileControls = document.createElement('div');
       tileControls.className = 'tile-controls';
@@ -498,7 +500,7 @@
 
         var rowTop = document.createElement('div');
         rowTop.style.cssText = 'display:flex;align-items:center;gap:8px;';
-        rowTop.innerHTML = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;color:var(--text-muted)"><rect x="3.5" y="7" width="9" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' +
+        (UNLOCKED_FEATURES.indexOf(featureName) >= 0 ? '<span style="display:inline-block;width:11px;height:11px;border-radius:50%;flex-shrink:0;background:' + (state[featureName === 'Junk Expressions' ? 'injectJunkExpressions' : 'debugMode'] ? 'var(--green)' : 'var(--text-muted)') + '"></span> ' : '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;color:var(--text-muted)"><rect x="3.5" y="7" width="9" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' + ' ') +
           '<span style="font-size:12px;font-weight:600;color:var(--text-secondary);">' + featureName + '</span>';
 
         var rowDesc = document.createElement('div');
@@ -508,7 +510,15 @@
         row.appendChild(rowTop);
         row.appendChild(rowDesc);
         row.addEventListener('click', (function(fn) {
-          return function() { showPaywallMessage(fn); };
+          return function() {
+            if (UNLOCKED_FEATURES.indexOf(fn) >= 0) {
+              var key = fn === 'Junk Expressions' ? 'injectJunkExpressions' : 'debugMode';
+              state[key] = !state[key];
+              buildUI();
+            } else {
+              showPaywallMessage(fn);
+            }
+          };
         })(featureName));
         featuresInner.appendChild(row);
       }
