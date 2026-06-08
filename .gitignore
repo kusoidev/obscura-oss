@@ -51,3 +51,5 @@ Thumbs.db
 .env
 .env.*
 target/
+
+!docs/obscura-browser.js
