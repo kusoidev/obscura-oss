@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc && cp src/runtime/async-vm-template.js dist/runtime/ && cp src/runtime/dispatch-gen.js dist/runtime/ && mkdir -p dist/web && cp src/web/index.html dist/web/",
     "web": "node dist/server.js",
-    "test": "echo 'No tests yet'"
+    "test": "echo 'No tests yet'",
+    "build:browser": "esbuild src/browser.ts --bundle --format=iife --global-name=Obscura --outfile=dist/web/obscura-browser.js --platform=browser --define:process.env.NODE_ENV=\\\"production\\\""
   },
   "dependencies": {
     "acorn": "^8.11.0",
