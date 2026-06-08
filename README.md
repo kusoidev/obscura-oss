@@ -100,6 +100,12 @@ This project is the result of months of solo development. The core pipeline — 
 
 ---
 
+## Limitations
+
+Be realistic about what obfuscation can and can't do. A determined reverser with enough time will figure out any protected code. The goal is to raise the cost — make automated tooling unreliable, force manual analysis, and ensure no two builds look the same. If your threat model involves nation-state actors, you need a different approach entirely.
+
+---
+
 ## License
 
 This software is released under a dual license:
