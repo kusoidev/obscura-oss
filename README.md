@@ -44,6 +44,8 @@ npm run web
 
 Open `http://localhost:3000` — paste code, toggle options, hit Obfuscate.
 
+**Try it online:** [kusoidev.github.io/obscura-oss](https://kusoidev.github.io/obscura-oss)
+
 ---
 
 ## CLI
