@@ -106,8 +106,18 @@ This software is released under a dual license:
 
 - **Free for individuals and non-commercial use.** You may use, modify, and distribute this software for personal projects, education, research, and open source work at no cost.
 
-- **Commercial use requires a paid license.** If you are a business, company, or any entity generating revenue that uses this software in a product or service, you must purchase a commercial license. Contact the author for pricing and terms.
+- **Paid license required for commercial use.** Anyone — individual or business — using this software in a revenue-generating product or service must purchase a license. Contact the author for pricing.
 
-- **No resale.** You may not sell this software, fork it with modifications and sell the result, or otherwise commercialize the source code itself. The obfuscation output you produce with it is yours — the engine is not.
+- **No resale.** You may not sell this software, fork it with modifications and sell the result, or otherwise commercialize the source code itself. The obfuscated output you produce with it is yours — the engine is not.
 
-Purchasing a commercial license also grants access to the full protection suite (vm-obfuscator-v3) with all advanced obfuscation passes unlocked.
+Purchasing a license also gets you **Obscura Pro**, which adds the full protection suite on top of everything in this open source release:
+
+- **Polymorphic opcode tables** — multiple variant byte mappings per segment, different every build
+- **Second XOR layer** — double encryption with independent derived keys
+- **Constant scrambling** — per-string XOR encryption with per-index keys
+- **Integrity hash verification** — runtime tamper detection that wipes bytecode on mismatch
+- **Dead code injection** — fake control flow blocks interwoven into the VM wrapper
+- **Anti-debug traps** — debugger detection and timing checks
+- **Stack encoding** — XOR-encoded VM stack values to complicate memory inspection
+- **Opaque predicates** — dead conditional branches interwoven with real code
+- **Junk expression injection** — random assignments scattered throughout
