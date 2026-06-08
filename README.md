@@ -52,6 +52,17 @@ Open `http://localhost:3000` — paste code, toggle options, hit Obfuscate.
 node dist/cli.js input.js -o output.js [--no-mangle] [--no-xor] [--no-minify]
 ```
 
+If you need a function to stay out of the VM and run as plain JavaScript, mark it with a `// @no-vm` comment on the line directly above it:
+
+```js
+// @no-vm
+function doSomething() {
+  // this runs as normal JS, not inside the VM
+}
+```
+
+The excluded function gets placed at the top of the output and assigned to `globalThis` so the VM can still call it.
+
 ---
 
 ## API
