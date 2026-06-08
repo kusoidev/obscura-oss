@@ -434,8 +434,10 @@
 
       var free = [
         { key: 'mangleIdentifiers', label: 'Identifier Mangling', desc: 'Rename all variables to random strings', icon: '<circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' },
+        { key: 'injectJunkExpressions', label: 'Junk Expressions', desc: 'Scatter random assignments throughout code', icon: '<path d="M3 6h10M7 3v10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M5 9l3-3 3 3M11 7l-3 3-3-3" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>' },
         { key: 'xorEncryptBytecode', label: 'XOR Bytecode Encryption', desc: 'Encrypt bytecode with derived XOR key', icon: '<path d="M2 8l3-6h6l3 6M3 10l3 6h5l3-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' },
-        { key: 'minifyOutput', label: 'Minify Output', desc: 'Strip whitespace and comments from final output', icon: '<path d="M3 4h10v8H3z" stroke="currentColor" stroke-width="1.5"/><path d="M6 8h4M8 6v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' }
+        { key: 'minifyOutput', label: 'Minify Output', desc: 'Strip whitespace and comments from final output', icon: '<path d="M3 4h10v8H3z" stroke="currentColor" stroke-width="1.5"/><path d="M6 8h4M8 6v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' },
+        { key: 'debugMode', label: 'Debug Mode', desc: 'Emit VM state to console for debugging', icon: '<rect x="3" y="4" width="10" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M6 7v2M10 7v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' }
       ];
 
       for (var fi = 0; fi < free.length; fi++) {
@@ -465,7 +467,7 @@
       var tileBody = document.createElement('div');
       tileBody.className = 'tile-body';
       tileBody.style.cssText = 'flex:1;min-width:0';
-      tileBody.innerHTML = '<div class="tile-label">Advanced Protection</div><div class="tile-desc">10 additional obfuscation passes</div>';
+      tileBody.innerHTML = '<div class="tile-label">Advanced Protection</div><div class="tile-desc">8 additional obfuscation passes</div>';
 
       var tileControls = document.createElement('div');
       tileControls.className = 'tile-controls';
