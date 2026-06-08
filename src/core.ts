@@ -97,7 +97,7 @@ export function ObfuscateSource(source: string, options?: Partial<ObfuscatorOpti
 
   var compiler = new BytecodeCompiler();
   var preserveSet = new Set(functionNames);
-  var compileResult = compiler.Compile(filteredSource, preserveSet);
+  var compileResult = compiler.Compile(filteredSource, preserveSet, opts.injectJunkExpressions);
   var bytecode = compileResult.bytecode;
   var constants = compileResult.constants;
   var externalAPIs = compileResult.externalAPIs;
@@ -110,7 +110,7 @@ export function ObfuscateSource(source: string, options?: Partial<ObfuscatorOpti
     bytecode: bytecode,
     constants: constants,
     externalAPIs: externalAPIs,
-    debugMode: false,
+    debugMode: opts.debugMode || false,
     options: opts,
   });
 

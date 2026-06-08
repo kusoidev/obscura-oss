@@ -16,9 +16,10 @@ Most JS VM obfuscators break on `async`/`await` because they transpile everythin
 
 1. Parses your JavaScript into an AST
 2. Renames every local identifier to a random string
-3. Compiles the AST into a custom bytecode instruction set
-4. Encrypts the bytecode with a per-build XOR key
-5. Embeds everything into a self-contained async IIFE that ships a minimal VM
+3. Injects junk expressions to bloat the AST and confuse static analysis
+4. Compiles the AST into a custom bytecode instruction set
+5. Encrypts the bytecode with a per-build XOR key
+6. Embeds everything into a self-contained async IIFE that ships a minimal VM
 
 At runtime, the VM decrypts the bytecode, walks the instruction stream, and executes it. The original variable names, control flow structure, and logical grouping are gone.
 
@@ -86,9 +87,9 @@ console.log(result.code);
 
 ## What you're getting
 
-This is the open source release of Obscura. It includes the core bytecode VM, identifier mangling, XOR encryption, and minification. You can use it freely for personal projects, open source work, and learning.
+This is the open source release of Obscura. It includes the core bytecode VM, identifier mangling, junk expression injection, XOR encryption, minification, and debug mode. You can use it freely for personal projects, open source work, and learning.
 
-It does not include the full protection suite. The complete version — with polymorphic opcodes, second-layer encryption, constant scrambling, integrity hashing, dead code injection, anti-debug traps, stack encoding, opaque predicates, and junk expressions — is available under a paid license.
+It does not include the full protection suite. The complete version — with polymorphic opcodes, second-layer encryption, constant scrambling, integrity hashing, dead code injection, anti-debug traps, stack encoding, and opaque predicates — is available under a paid license.
 
 If you're an individual developer or using this for non-commercial purposes, everything here is free. If you're a business or company using Obscura in a commercial product, you need a commercial license.
 
@@ -126,4 +127,3 @@ Purchasing a license also gets you **Obscura Pro**, which adds the full protecti
 - **Anti-debug traps** — debugger detection and timing checks
 - **Stack encoding** — XOR-encoded VM stack values to complicate memory inspection
 - **Opaque predicates** — dead conditional branches interwoven with real code
-- **Junk expression injection** — random assignments scattered throughout

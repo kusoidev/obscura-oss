@@ -89,12 +89,12 @@ export class BytecodeCompiler {
     }
   }
 
-  Compile(source: string, preserve?: Set<string>): CompileResult {
+  Compile(source: string, preserve?: Set<string>, injectJunkExpressions?: boolean): CompileResult {
     var ast = acorn.parse(source, { ecmaVersion: 2022, sourceType: 'module', locations: true }) as any;
     preObfuscateAST(ast, {
       mangleIdentifiers: true,
       injectOpaquePredicates: false,
-      injectJunkExpressions: false,
+      injectJunkExpressions: injectJunkExpressions || false,
       preserve: preserve,
     });
     this.compileNode(ast);

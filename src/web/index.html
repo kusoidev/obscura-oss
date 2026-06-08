@@ -384,26 +384,25 @@
 </div>
 
 <script src="obscura-browser.js"></script>
+<script src="obscura-browser.js"></script>
 <script>
   var PRO_FEATURES = [
-    'Opaque Predicates', 'Junk Expressions', 'Second XOR Layer', 'Scramble Constants',
+    'Opaque Predicates', 'Second XOR Layer', 'Scramble Constants',
     'Integrity Hash', 'Dead Code Injection', 'Anti-Debug Traps', 'Stack Encoding',
-    'Polymorphic Opcodes', 'Debug Mode'
+    'Polymorphic Opcodes'
   ];
   var PRO_FEATURE_DESCS = {
     'Opaque Predicates': 'Insert conditional branches that always evaluate to the same value, confusing static analysis.',
-    'Junk Expressions': 'Add meaningless arithmetic expressions that do not affect execution but complicate reverse engineering.',
     'Second XOR Layer': 'Apply an additional XOR encryption pass to bytecode.',
     'Scramble Constants': 'Shuffle constant pool entries to hinder pattern matching.',
     'Integrity Hash': 'Embed a hash of the original code to detect tampering.',
     'Dead Code Injection': 'Insert unreachable code paths that never execute.',
     'Anti-Debug Traps': 'Insert timing checks and debugger detection logic.',
     'Stack Encoding': 'Encode stack operations using custom encoding scheme.',
-    'Polymorphic Opcodes': 'Generate different opcode mappings per obfuscation run.',
-    'Debug Mode': 'Enable debug output and detailed logging (for testing).'
+    'Polymorphic Opcodes': 'Generate different opcode mappings per obfuscation run.'
   };
 
-  var state = { mangleIdentifiers: true, xorEncryptBytecode: true, minifyOutput: true, numSegments: 0 };
+  var state = { mangleIdentifiers: true, injectJunkExpressions: true, xorEncryptBytecode: true, minifyOutput: true, debugMode: false, numSegments: 0 };
   var lastResult = null;
 
   function showPaywallMessage(featureName) {
@@ -543,9 +542,9 @@
 
   function applyPreset(preset) {
     var presets = {
-      max: { mangleIdentifiers: true, xorEncryptBytecode: true, minifyOutput: true },
-      balanced: { mangleIdentifiers: true, xorEncryptBytecode: true, minifyOutput: true },
-      light: { mangleIdentifiers: true, xorEncryptBytecode: false, minifyOutput: false }
+      max: { mangleIdentifiers: true, injectJunkExpressions: true, xorEncryptBytecode: true, minifyOutput: true, debugMode: false },
+      balanced: { mangleIdentifiers: true, injectJunkExpressions: true, xorEncryptBytecode: true, minifyOutput: true, debugMode: false },
+      light: { mangleIdentifiers: true, injectJunkExpressions: false, xorEncryptBytecode: false, minifyOutput: false, debugMode: false }
     };
     var cfg = presets[preset];
     for (var k in cfg) { state[k] = cfg[k]; }

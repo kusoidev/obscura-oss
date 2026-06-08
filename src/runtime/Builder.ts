@@ -96,7 +96,7 @@ function buildGroupIndexMap(): Record<number, number> {
 }
 
 
-var generateDispatch = function(G, R, L, S, SU, W, F, XE, gS, SP, SK, groupNames) {
+var generateDispatch = function(G: any, R: any, L: any, S: any, SU: any, W: any, F: any, XE: any, gS: any, SP: any, SK: any, groupNames: any) {
   var lines = [];
   var body;
 
@@ -207,8 +207,10 @@ export function BuildVM(input: BuildInput): string {
 
   var opts: ObfuscatorOptions = {
     mangleIdentifiers: true,
+    injectJunkExpressions: true,
     xorEncryptBytecode: true,
     minifyOutput: true,
+    debugMode: false,
     ...(input.options || {}),
   };
 
