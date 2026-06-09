@@ -313,6 +313,35 @@
     @media (max-width: 640px) {
       .toast-message { white-space: normal; max-width: 90%; text-align: center; }
     }
+.notification-toast {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  max-width: 420px;
+  background: #1c1c1c;
+  border: 1px solid #e53e3e;
+  border-radius: 8px;
+  padding: 14px 18px;
+  color: #fcd7d7;
+  font-size: 13px;
+  line-height: 1.5;
+  z-index: 9999;
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  box-shadow: 0 4px 24px rgba(229,62,62,0.18);
+  pointer-events: none;
+}
+.notification-toast.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.notification-toast strong {
+  display: block;
+  color: #fc8181;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
 </style>
 </head>
 <body>
@@ -563,9 +592,12 @@
 
   function analyzeSource(source) {
     var warnings = [];
-    if (/\b(let|const)\s*\[[^\]]*\]\s*=/.test(source)) warnings.push('Destructuring declarations detected. May produce incorrect values.');
-    if (/\[[^,\]]*,\s*,[^\]]*\]/.test(source)) warnings.push('Sparse arrays detected. "in" operator may return incorrect results for holes.');
-    if (/\b(let|const)\s+\w+\s*=/.test(source)) warnings.push('let/const compiled as var. No block scoping.');
+    if (/function\s*\*/.test(source)) warnings.push('Generator functions (function*) are not supported and will fail.');
+    if (/async\s*\*/.test(source)) warnings.push('Async generators are not supported and will fail.');
+    if (/\beval\s*\(/.test(source)) warnings.push('eval() calls cannot work inside the VM.');
+    if (/\bnew\s+Function\s*\(/.test(source)) warnings.push('new Function() cannot work inside the VM.');
+    var taggedMatch = source.match(/([a-zA-Z_$][a-zA-Z0-9_$]*)\s*`/);
+    if (taggedMatch && taggedMatch[1] !== 'function') warnings.push('Tagged template literals may not work correctly.');
     return warnings;
   }
 
@@ -605,9 +637,11 @@
       document.getElementById('editorPanel').classList.add('hidden');
       document.getElementById('outputPanel').classList.remove('hidden');
     } catch (e) {
-      document.getElementById('output').textContent = 'Error: ' + e.message;
+      var msg = e.message || String(e);
+      document.getElementById('output').textContent = 'Error: ' + msg;
       setStatus('error', 'Failed');
       document.getElementById('downloadBar').classList.remove('visible');
+      showNotification(msg);
     }
     btn.disabled = false;
   }
@@ -666,6 +700,20 @@
     } catch (e) {
       runResult.textContent = e.message || String(e); runStatus.textContent = 'error'; runStatus.className = 'error';
     }
+  }
+
+  function showNotification(msg) {
+    var existing = document.querySelector('.notification-toast');
+    if (existing) existing.remove();
+    var toast = document.createElement('div');
+    toast.className = 'notification-toast';
+    toast.innerHTML = '<strong>Obfuscation failed</strong>' + msg;
+    document.body.appendChild(toast);
+    requestAnimationFrame(function() { toast.classList.add('visible'); });
+    setTimeout(function() {
+      toast.classList.remove('visible');
+      setTimeout(function() { if (toast.parentNode) toast.remove(); }, 300);
+    }, 6000);
   }
 
   function clearAll() {
