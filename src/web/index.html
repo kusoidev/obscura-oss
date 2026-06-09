@@ -639,11 +639,21 @@
       sandbox.global = sandbox;
       sandbox.globalThis = sandbox;
       var fn = new Function('console', 'setTimeout', 'setInterval', 'Promise', 'global', 'globalThis', lastResult.code);
-      fn(sandbox.console, sandbox.setTimeout, sandbox.setInterval, sandbox.Promise, sandbox, sandbox);
-      setTimeout(function() {
-        runResult.textContent = logs.join('\n') || '(no output)';
-        runStatus.textContent = 'done'; runStatus.className = '';
-      }, 100);
+      var result = fn(sandbox.console, sandbox.setTimeout, sandbox.setInterval, sandbox.Promise, sandbox, sandbox);
+      if (result && typeof result.then === 'function') {
+        result.then(function() {
+          runResult.textContent = logs.join('\n') || '(no output)';
+          runStatus.textContent = 'done'; runStatus.className = '';
+        }).catch(function(e) {
+          runResult.textContent = e.message || String(e);
+          runStatus.textContent = 'error'; runStatus.className = 'error';
+        });
+      } else {
+        setTimeout(function() {
+          runResult.textContent = logs.join('\n') || '(no output)';
+          runStatus.textContent = 'done'; runStatus.className = '';
+        }, 100);
+      }
     } catch (e) {
       runResult.textContent = e.message; runStatus.textContent = 'error'; runStatus.className = 'error';
     }
