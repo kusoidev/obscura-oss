@@ -626,12 +626,20 @@
     outputBox.classList.remove('hidden'); runResult.textContent = ''; runStatus.textContent = 'running...'; runStatus.className = '';
     try {
       var logs = [];
-      var fn = new Function('console', lastResult.code);
-      fn({
-        log: function() { logs.push(Array.prototype.map.call(arguments, function(a) { return typeof a === 'object' && a !== null ? JSON.stringify(a) : String(a); }).join(' ')); },
-        error: function() { logs.push('[error] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); },
-        warn: function() { logs.push('[warn] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); }
-      });
+      var sandbox = {
+        console: {
+          log: function() { logs.push(Array.prototype.map.call(arguments, function(a) { return typeof a === 'object' && a !== null ? JSON.stringify(a) : String(a); }).join(' ')); },
+          error: function() { logs.push('[error] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); },
+          warn: function() { logs.push('[warn] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); }
+        },
+        setTimeout: function(fn, ms) { return setTimeout(fn, Math.min(ms || 0, 5000)); },
+        setInterval: function() { return 0; },
+        Promise: Promise
+      };
+      sandbox.global = sandbox;
+      sandbox.globalThis = sandbox;
+      var fn = new Function('console', 'setTimeout', 'setInterval', 'Promise', 'global', 'globalThis', lastResult.code);
+      fn(sandbox.console, sandbox.setTimeout, sandbox.setInterval, sandbox.Promise, sandbox, sandbox);
       setTimeout(function() {
         runResult.textContent = logs.join('\n') || '(no output)';
         runStatus.textContent = 'done'; runStatus.className = '';
