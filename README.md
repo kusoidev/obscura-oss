@@ -29,7 +29,7 @@ At runtime, the VM decrypts the bytecode, walks the instruction stream, and exec
 
 Classes with inheritance, closures, destructuring, rest/spread, default parameters, template literals, try/catch/finally, switch, loops, Map/Set, Symbol, JSON, regex — all tested.
 
-What doesn't: generator functions (`function*`), tagged template literals, and deep recursion beyond roughly 1000 frames. These are VM stack limits, not design oversights.
+**What doesn't:** generator functions (`function*`), tagged template literals, `eval`/`new Function` at runtime (cannot work inside a VM), and deep recursion beyond roughly 1000 frames (fixed in Pro via trampoline dispatch). `import`/`export` statements compile as no-ops — the obfuscator operates on a single file at a time.
 
 ---
 
@@ -64,7 +64,7 @@ function doSomething() {
 }
 ```
 
-The excluded function gets placed at the top of the output and assigned to `globalThis` so the VM can still call it.
+The excluded function is embedded directly in the VM's scope and registered in the runtime lookup table. It runs as native JavaScript with full access to outer-scope variables — no `globalThis` pollution, no closure breakage.
 
 ---
 
