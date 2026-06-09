@@ -26,12 +26,19 @@
   var {{VM_VAR_BI}} = new Map();
   for (var i = 0; i < __BN__.length; i++) {
     var n = __BN__[i];
-    if (typeof {{VM_VAR_G}}[n] !== "undefined") { {{VM_VAR_BI}}.set(n, {{VM_VAR_G}}[n]); {{VM_VAR_GS}}.set(n, {{VM_VAR_G}}[n]); }
+    if (typeof {{VM_VAR_G}}[n] !== "undefined") {
+      var _fn = {{VM_VAR_G}}[n];
+      if (typeof _fn === "function") _fn = _fn.bind({{VM_VAR_G}});
+      {{VM_VAR_BI}}.set(n, _fn); {{VM_VAR_GS}}.set(n, _fn);
+    }
   }
   var __EK__ = Object.keys(__X__);
   for (var i = 0; i < __EK__.length; i++) {
     var k = __EK__[i], v = __X__[k];
-    if (typeof v !== "undefined") { {{VM_VAR_BI}}.set(k, v); {{VM_VAR_GS}}.set(k, v); }
+    if (typeof v !== "undefined") {
+      if (typeof v === "function") v = v.bind({{VM_VAR_G}});
+      {{VM_VAR_BI}}.set(k, v); {{VM_VAR_GS}}.set(k, v);
+    }
   }
 
   var {{VM_FN_D}} = function(s, l) {
