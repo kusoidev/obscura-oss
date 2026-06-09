@@ -265,7 +265,7 @@ export class BytecodeCompiler {
         break;
       case 'SpreadElement': this.compileNode(node.argument); break;
       case 'IfStatement': Stmts.compileIf(this, node); break;
-      case 'ConditionalExpression': this.compileNode(node.test); this.compileNode(node.consequent); this.compileNode(node.alternate); this.emitPoly('TERNARY'); break;
+      case 'ConditionalExpression': { var _elseLabel = 'tern_else_' + this.currentAddr(); var _endLabel = 'tern_end_' + this.currentAddr(); this.compileNode(node.test); this.emitJumpPoly('JMP_IF_FALSE', _elseLabel); this.compileNode(node.consequent); this.emitJumpPoly('JMP', _endLabel); this.setLabel(_elseLabel); this.compileNode(node.alternate); this.setLabel(_endLabel); } break;
       case 'SwitchStatement': Stmts.compileSwitch(this, node); break;
       case 'ForStatement': Stmts.compileFor(this, node); break;
       case 'WhileStatement': Stmts.compileWhile(this, node); break;

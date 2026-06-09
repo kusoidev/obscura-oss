@@ -626,26 +626,35 @@
     outputBox.classList.remove('hidden'); runResult.textContent = ''; runStatus.textContent = 'running...'; runStatus.className = '';
     try {
       var logs = [];
-      var sandbox = {
-        console: {
-          log: function() { logs.push(Array.prototype.map.call(arguments, function(a) { return typeof a === 'object' && a !== null ? JSON.stringify(a) : String(a); }).join(' ')); },
-          error: function() { logs.push('[error] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); },
-          warn: function() { logs.push('[warn] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); }
-        },
-        setTimeout: function(fn, ms) { return setTimeout(fn, Math.min(ms || 0, 5000)); },
-        setInterval: function() { return 0; },
-        Promise: Promise
-      };
-      sandbox.global = sandbox;
-      sandbox.globalThis = sandbox;
-      var fn = new Function('console', 'setTimeout', 'setInterval', 'Promise', 'global', 'globalThis', lastResult.code);
-      var result = fn(sandbox.console, sandbox.setTimeout, sandbox.setInterval, sandbox.Promise, sandbox, sandbox);
+      var _origLog = console.log;
+      var _origError = console.error;
+      var _origWarn = console.warn;
+      console.log = function() { logs.push(Array.prototype.map.call(arguments, function(a) { return typeof a === 'object' && a !== null ? JSON.stringify(a) : String(a); }).join(' ')); };
+      console.error = function() { logs.push('[error] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); };
+      console.warn = function() { logs.push('[warn] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); };
+      var _origSetTimeout = window.setTimeout;
+      var _origClearTimeout = window.clearTimeout;
+      var _origSetInterval = window.setInterval;
+      var _origClearInterval = window.clearInterval;
+      window.setTimeout = function(fn, ms) { return _origSetTimeout(fn, Math.min(ms || 0, 5000)); };
+      window.setInterval = function() { return 0; };
+      window.clearTimeout = _origClearTimeout;
+      window.clearInterval = _origClearInterval;
+      var fn = new Function(lastResult.code);
+      var result = fn();
+      window.setTimeout = _origSetTimeout;
+      window.setInterval = _origSetInterval;
+      window.clearTimeout = _origClearTimeout;
+      window.clearInterval = _origClearInterval;
+      console.log = _origLog;
+      console.error = _origError;
+      console.warn = _origWarn;
       if (result && typeof result.then === 'function') {
         result.then(function() {
           runResult.textContent = logs.join('\n') || '(no output)';
           runStatus.textContent = 'done'; runStatus.className = '';
         }).catch(function(e) {
-          runResult.textContent = e.message || String(e);
+          runResult.textContent = (e && e.message) || String(e);
           runStatus.textContent = 'error'; runStatus.className = 'error';
         });
       } else {
@@ -655,7 +664,7 @@
         }, 100);
       }
     } catch (e) {
-      runResult.textContent = e.message; runStatus.textContent = 'error'; runStatus.className = 'error';
+      runResult.textContent = e.message || String(e); runStatus.textContent = 'error'; runStatus.className = 'error';
     }
   }
 
