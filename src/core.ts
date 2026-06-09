@@ -246,7 +246,7 @@ export function ObfuscateSource(source: string, options?: Partial<ObfuscatorOpti
     if (fn.body && typeof fn.body === 'object') collectFreeVariablesInBody(fn.body, declared, freeVars);
 
     excludedNames.forEach(function(en) { freeVars.delete(en); });
-    var builtins = new Set(['undefined','NaN','Infinity','console','Math','JSON','Promise','Object','Array','String','Number','Boolean','Function','RegExp','Date','Error','Map','Set','Symbol','parseInt','parseFloat','isNaN','isFinite','eval','decodeURI','decodeURIComponent','encodeURI','encodeURIComponent']);
+    var builtins = new Set(['undefined','NaN','Infinity','console','Math','JSON','Promise','Object','Array','String','Number','Boolean','Function','RegExp','Date','Error','Map','Set','Symbol','parseInt','parseFloat','isNaN','isFinite','eval','decodeURI','decodeURIComponent','encodeURI','encodeURIComponent','TypeError','URIError','SyntaxError','RangeError','ReferenceError','EvalError']);
     builtins.forEach(function(bi) { freeVars.delete(bi); });
 
     freeVars.forEach(function(fv) { allFreeVars.add(fv); });
@@ -273,6 +273,8 @@ export function ObfuscateSource(source: string, options?: Partial<ObfuscatorOpti
   var compiler = new BytecodeCompiler();
   var preserveSet = new Set(functionNames);
   allFreeVars.forEach(function(fv) { preserveSet.add(fv); });
+  var allBuiltins = ['undefined','NaN','Infinity','console','Math','JSON','Promise','Object','Array','String','Number','Boolean','Function','RegExp','Date','Error','Map','Set','Symbol','parseInt','parseFloat','isNaN','isFinite','eval','decodeURI','decodeURIComponent','encodeURI','encodeURIComponent','TypeError','URIError','SyntaxError','RangeError','ReferenceError','EvalError'];
+  for (var bi = 0; bi < allBuiltins.length; bi++) preserveSet.add(allBuiltins[bi]);
   var compileResult = compiler.Compile(filteredSource, preserveSet, opts.injectJunkExpressions);
   var bytecode = compileResult.bytecode;
   var constants = compileResult.constants;

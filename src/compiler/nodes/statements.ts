@@ -96,7 +96,22 @@ export function compileForOf(compiler: BytecodeCompiler, node: any): void {
   compiler.emitPoly('PUSH_VAR', compiler.addConstant(tmpResult));
   compiler.emitPoly('GET_PROP', compiler.addConstant('value'));
   if (node.left.type === 'VariableDeclaration') {
-    for (const decl of node.left.declarations) compiler.emitPoly('DECLARE_VAR', compiler.addConstant(decl.id.name));
+    for (const decl of node.left.declarations) {
+      if (decl.id.type === 'Identifier') {
+        compiler.emitPoly('DECLARE_VAR', compiler.addConstant(decl.id.name));
+      } else if (decl.id.type === 'ArrayPattern') {
+        var _fotmp = '__fodest_' + (compiler.funcCounter++);
+        compiler.emitPoly('DECLARE_VAR', compiler.addConstant(_fotmp));
+        for (var _ei = 0; _ei < decl.id.elements.length; _ei++) {
+          var _el = decl.id.elements[_ei];
+          if (!_el) continue;
+          compiler.emitPoly('PUSH_VAR', compiler.addConstant(_fotmp));
+          compiler.emitPoly('PUSH_CONST', compiler.addConstant(_ei));
+          compiler.emitPoly('GET_INDEX');
+          compiler.emitPoly('DECLARE_VAR', compiler.addConstant(_el.name));
+        }
+      }
+    }
   } else if (node.left.type === 'Identifier') {
     compiler.emitPoly('STORE_VAR', compiler.addConstant(node.left.name));
   }
