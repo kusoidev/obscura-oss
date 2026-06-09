@@ -265,7 +265,7 @@ export function BuildVM(input: BuildInput): string {
   if (input.plainFunctions && input.plainFunctions.length > 0) {
     for (var pfi = 0; pfi < input.plainFunctions.length; pfi++) {
       var pf = input.plainFunctions[pfi];
-      plainFunctionsCode += pf.source + '\n' + names.gS + '.set(' + JSON.stringify(pf.name) + ', ' + pf.name + ');\n';
+      plainFunctionsCode += pf.source + ';\n' + names.gS + '.set(' + JSON.stringify(pf.name) + ', ' + pf.name + ');\n';
     }
   }
 

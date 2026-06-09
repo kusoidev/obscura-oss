@@ -18,8 +18,25 @@ export interface ObfuscateResult {
 }
 
 function Minify(code: string): string {
-  code = code.replace(/\/\/.*$/gm, '');
-  return code.replace(/\s+/g, ' ').replace(/ ([{}();,:])/g, '$1').replace(/([{}();,:]) /g, '$1').trim();
+  var out = '';
+  var inString: string | null = null;
+  for (var i = 0; i < code.length; i++) {
+    var ch = code[i];
+    if (inString) {
+      out += ch;
+      if (ch === '\\') { i++; out += code[i]; }
+      else if (ch === inString) inString = null;
+    } else if (ch === '"' || ch === "'") {
+      inString = ch;
+      out += ch;
+    } else if (ch === '/' && code[i+1] === '/') {
+      while (i < code.length && code[i] !== '\n') i++;
+      if (code[i] === '\n') out += '\n';
+    } else {
+      out += ch;
+    }
+  }
+  return out.replace(/\s+/g, ' ').replace(/ ([{}();,:])/g, '$1').replace(/([{}();,:]) /g, '$1').trim();
 }
 
 function findFunctionsToExclude(ast: any): Set<any> {
