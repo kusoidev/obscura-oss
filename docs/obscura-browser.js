@@ -8302,6 +8302,7 @@ var Obscura = (() => {
           } else if (_prop.value.type === "AssignmentPattern" && _prop.value.left.type === "Identifier") {
             this.emitPoly("PUSH_VAR", this.addConstant(_tmpObj));
             this.emitPoly("GET_PROP", this.addConstant(_keyName));
+            this.emitPoly("DUP");
             this.emitPoly("PUSH_CONST", this.addConstant(void 0));
             this.emitPoly("STRICT_EQ");
             var _oskipLabel = "__odef_skip_" + this.currentAddr();
@@ -8488,6 +8489,7 @@ var Obscura = (() => {
             var _dp = node.params[_dpi];
             if (_dp.type === "AssignmentPattern" && _dp.left.type === "Identifier") {
               this.emitPoly("PUSH_VAR", this.addConstant(_dp.left.name));
+              this.emitPoly("DUP");
               this.emitPoly("PUSH_CONST", this.addConstant(void 0));
               this.emitPoly("STRICT_EQ");
               var _dpSkip = "__dp_skip_" + this.currentAddr();
