@@ -8765,7 +8765,7 @@ var Obscura = (() => {
           body = SU + "(st," + G + "(" + R + "(st)),st.s[st.s.length-1]);";
           break;
         case "DECLARE_VAR":
-          body = "{var _dn=" + G + "(" + R + "(st));st.c.set(_dn,st.s.pop());}";
+          body = "{var _dn=" + G + "(" + R + '(st));var _dv=st.s.pop();if(typeof __PF__!=="undefined"&&__PF__.hasOwnProperty(_dn))_dv=__PF__[_dn];st.c.set(_dn,_dv);}';
           break;
         case "POP":
           body = "st.s.pop();";
@@ -9033,7 +9033,7 @@ var Obscura = (() => {
     return { async: asyncBody, sync: syncBody };
   };
   function BuildVM(input) {
-    var template = '(async function() {\n  var __D__ = {{DEBUG_FLAG}};\n  var __E__ = {{BYTECODE}};\n  var __S__ = {{BC_SEED}};\n  var __C__ = {{CONSTANTS}};\n  var __X__ = {{EXTERNAL_APIS}};\n\n  {{DEAD_CODE}}\n\n  var {{VM_VAR_G}} = typeof global !== "undefined" ? global : (typeof window !== "undefined" ? window : this);\n  var {{VM_FN_ST}} = {{VM_VAR_G}}.setTimeout;\n\n  var __BNC__ = {{BN_CHUNKS}};\n  var __BNK__ = {{BN_KEY}};\n  var __BN__ = [];\n  var __BNI__ = 0;\n  for (var __BNJ__ = 0; __BNJ__ < __BNC__.length; ) {\n    var __BNL__ = __BNC__[__BNJ__++];\n    var __BNS__ = "";\n    for (var __BNK2__ = 0; __BNK2__ < __BNL__; __BNK2__++) __BNS__ += String.fromCharCode(__BNC__[__BNJ__++] ^ ((__BNK__ + __BNI__ * 7 + __BNK2__ * 13) & 255));\n    __BN__.push(__BNS__);\n    __BNI__++;\n  }\n\n  var {{VM_VAR_GS}} = new Map();\n  var {{VM_VAR_BI}} = new Map();\n  for (var i = 0; i < __BN__.length; i++) {\n    var n = __BN__[i];\n    if (typeof {{VM_VAR_G}}[n] !== "undefined") {\n      var _fn = {{VM_VAR_G}}[n];\n      if (n === "setTimeout" || n === "clearTimeout" || n === "setInterval" || n === "clearInterval") _fn = _fn.bind({{VM_VAR_G}});\n      {{VM_VAR_BI}}.set(n, _fn); {{VM_VAR_GS}}.set(n, _fn);\n    }\n  }\n  var __EK__ = Object.keys(__X__);\n  for (var i = 0; i < __EK__.length; i++) {\n    var k = __EK__[i], v = __X__[k];\n    if (typeof v !== "undefined") {\n      if ((k === "setTimeout" || k === "clearTimeout" || k === "setInterval" || k === "clearInterval") && typeof v === "function") v = v.bind({{VM_VAR_G}});\n      {{VM_VAR_BI}}.set(k, v); {{VM_VAR_GS}}.set(k, v);\n    }\n  }\n\n  var {{VM_FN_D}} = function(s, l) {\n    var k = [];\n    for (var i = 0; i < l; i++) {\n      var h = s[i % s.length] ^ ((i * 157 + 63) & 255);\n      for (var j = 0; j < s.length; j++) h = ((h << 3) - h + s[j]) | 0;\n      k.push(h & 255);\n    }\n    return k;\n  };\n\n  var __K__ = {{VM_FN_D}}(__S__, Math.max(__E__.length, 40));\n  var __B__ = new Uint8Array(__E__.length);\n  for (var i = 0; i < __E__.length; i++) __B__[i] = __E__[i] ^ __K__[i % __K__.length];\n\n\n  var __OP__ = {{OP_XOR_KEY}};\n  for (var i = 0; i < __B__.length; i++) __B__[i] ^= __OP__;\n\n  var __DC__ = [];\n  for (var i = 0; i < __C__.length; i++) {\n    var c = __C__[i];\n    if (c && typeof c.l === "number" && c.c) {\n      __DC__[i] = { _e: true, _l: c.l, _c: c.c, _i: i };\n    } else if (c && typeof c.a === "number") {\n      var fd = { addr: c.a, params: c.p || [], async: c.as || false, isArrow: c.ia || false };\n      if (c.nm) fd.name = c.nm;\n      __DC__[i] = fd;\n    } else {\n      __DC__[i] = c;\n    }\n  }\n\n  function {{VM_FN_GC}}(idx) {\n    var v = __DC__[idx];\n    if (v && v._e) {\n      var s = "";\n      var __SK__ = {{STR_XOR_OFFSET}};\n      for (var j = 0; j < v._l; j++) s += String.fromCharCode(v._c[j] ^ ((__SK__ + v._i * 17 + j * 31 + 73) & 255));\n      return s;\n    }\n    if (v && typeof v === "object") {\n      if (v.__regex) return new RegExp(v.pattern, v.flags);\n      if (v.__bigint) return BigInt(v.value);\n      if (v.__undef) return undefined;\n      if (v.__null) return null;\n      if (v.__nan) return NaN;\n      if (v.__inf !== undefined) return v.__inf ? Infinity : -Infinity;\n      if (v.__taggedTemplate) { var arr = v.strings.slice(); arr.raw = v.raw; return arr; }\n    }\n    return v;\n  }\n\n  var __OT_ALL__ = {{OPCODE_TABLES}};\n  var __OT_CUR__ = 0;\n  var __OT__ = __OT_ALL__[0];\n  var __NUM_SEG__ = {{NUM_SEGMENTS}};\n  var __SEG_KEYS__ = {{SEGMENT_KEYS}};\n\n  var __V2G__ = {{VARIANT_TO_GROUP}};\n\n  var {{VM_VAR_VM}} = [];\n\n  function {{VM_FN_V}}(pScope) {\n    this.s = []; this.i = 0; this.c = new Map();\n    if (pScope) this.c.__p = pScope;\n    this.l = []; this.t = {{VM_VAR_GS}}; this.y = []; this._retv = undefined; this._throwing = false;\n    this.fakeStack = []; this._sk = 0;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_V}});\n\n  var __SK__ = {{STACK_KEY}};\n  function {{VM_FN_SP}}(st, v) {\n    st.s.push(v);\n  }\n  function {{VM_FN_SK}}(st) {\n    var v = st.s.pop();\n    if (typeof v === "number" && !isNaN(v) && isFinite(v)) {\n      st._sk = Math.max(0, (st._sk || 1) - 1);\n      var kb = __SK__[(st._sk || 0) % __SK__.length];\n      if (Number.isInteger(v) && v >= -2147483648 && v <= 2147483647) {\n        return v ^ ((kb << 24) | (kb << 16) | (kb << 8) | kb);\n      } else {\n        return v - kb * 0.000001;\n      }\n    } else if (typeof v === "string") {\n      st._sk = Math.max(0, (st._sk || 1) - 1);\n      var kb = __SK__[(st._sk || 0) % __SK__.length];\n      var ds = ""; for (var i = 0; i < v.length; i++) ds += String.fromCharCode(v.charCodeAt(i) ^ kb);\n      return ds;\n    }\n    return v;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_SP}}); {{VM_VAR_VM}}.push({{VM_FN_SK}});\n  function {{VM_FN_L}}(st, name) {\n    var s = st.c;\n    while (s) { if (s.has(name)) return s.get(name); s = s.__p; }\n    if ({{VM_VAR_GS}}.has(name)) return {{VM_VAR_GS}}.get(name);\n    if ({{VM_VAR_BI}}.has(name)) return {{VM_VAR_BI}}.get(name);\n    if (typeof {{VM_VAR_G}}[name] !== "undefined") return {{VM_VAR_G}}[name];\n    return undefined;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_L}});\n\n  function {{VM_FN_S}}(st, name, value) {\n    var s = st.c;\n    while (s) { if (s.has(name)) { s.set(name, value); return; } s = s.__p; }\n    st.c.set(name, value);\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_S}});\n\n  function {{VM_FN_SU}}(st, name, value) {\n    var s = st.c;\n    while (s) { if (s.has(name)) { s.set(name, value); return; } s = s.__p; }\n    st.c.set(name, value);\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_SU}});\n\n  function {{VM_FN_R}}(st) {\n    var v = (__B__[st.i] << 24) | (__B__[st.i + 1] << 16) | (__B__[st.i + 2] << 8) | __B__[st.i + 3];\n    st.i += 4; return v;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_R}});\n\n  async function {{VM_FN_XE}}(st) {\n    var M = 50000000, steps = 0;\n    while (st.i < __B__.length) {\n      try {\n      if (++steps > M) throw new Error("VM:max steps");\n      var opByte = __B__[st.i++] ^ ((st.i - 1) & 0xFF);\n      var gidx = __V2G__[opByte];\n      if (gidx === undefined) { __B__ = new Uint8Array(0); __DC__ = []; throw new Error("Unknown op:" + opByte); }\n\n      switch (gidx) {\n{{SWITCH_BODY}}\n        default:\n          __B__ = new Uint8Array(0); __DC__ = [];\n          throw new Error("Unknown op:" + opByte);\n      }\n      } catch (__vmErr__) {\n        if (st.y.length === 0) throw __vmErr__;\n        var __ti__ = st.y.pop();\n        st.s.push(__vmErr__);\n        if (__ti__.catchAddr >= 0) { st.i = __ti__.catchAddr; continue; }\n        if (__ti__.finallyAddr >= 0) { st.i = __ti__.finallyAddr; continue; }\n        throw __vmErr__;\n      }\n    }\n    return st.s.length ? st.s[st.s.length - 1] : undefined;\n  }\n  function {{VM_FN_XS}}(st) {\n    var M = 10000000, steps = 0;\n    while (st.i < __B__.length) {\n      try {\n      if (++steps > M) throw new Error("VM:max steps");\n      var opByte = __B__[st.i++] ^ ((st.i - 1) & 0xFF);\n      var gidx = __V2G__[opByte];\n      if (gidx === undefined) { __B__ = new Uint8Array(0); __DC__ = []; throw new Error("Unknown op:" + opByte); }\n\n      switch (gidx) {\n{{SWITCH_BODY_SYNC}}\n        default:\n          __B__ = new Uint8Array(0); __DC__ = [];\n          throw new Error("Unknown op:" + opByte);\n      }\n      } catch (__vmErr__) {\n        if (st.y.length === 0) throw __vmErr__;\n        var __ti__ = st.y.pop();\n        st.s.push(__vmErr__);\n        if (__ti__.catchAddr >= 0) { st.i = __ti__.catchAddr; continue; }\n        if (__ti__.finallyAddr >= 0) { st.i = __ti__.finallyAddr; continue; }\n        throw __vmErr__;\n      }\n    }\n    return st.s.length ? st.s[st.s.length - 1] : undefined;\n  }\n\n  {{VM_VAR_VM}}.push({{VM_FN_XE}});\n  {{VM_VAR_VM}}.push({{VM_FN_XS}});\n\n  function {{VM_FN_W}}(fd, ps) {\n    var cs = ps ? ps.c : {{VM_VAR_GS}};\n    var ct = ps ? ps.t : undefined;\n    var vf = function() {\n      var a = Array.prototype.slice.call(arguments);\n      return {{VM_FN_F}}(fd, a, cs, ct, this);\n    };\n    vf._v = true; vf._o = fd;\n    vf.prototype = fd.prototype || {}; vf._s = cs;\n    return vf;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_W}});\n\n  function {{VM_FN_F}}(fd, a, cs, ct, cl) {\n    var st = new {{VM_FN_V}}(cs || {{VM_VAR_GS}});\n    st._cs = cs || null;\n    var params = fd.params || [];\n    for (var i = 0; i < params.length; i++) {\n      var p = params[i];\n      if (p.charAt(0) === "." && p.charAt(1) === "." && p.charAt(2) === ".") {\n        var rest = []; for (var j = i; j < a.length; j++) rest.push(a[j]);\n        st.c.set(p.slice(3), rest); break;\n      } else { st.c.set(p, i < a.length ? a[i] : undefined); }\n    }\n    st.c.set("arguments", a);\n    if (fd._this !== undefined) { st.t = fd._this; }\n    else if (fd.isArrow) { st.t = ct || {{VM_VAR_GS}}; }\n    else { st.t = cl || {{VM_VAR_GS}}; }\n    st.i = fd.addr;\n    if (fd.async) return {{VM_FN_XE}}(st); return {{VM_FN_XS}}(st);\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_F}});\n\n  var eF = { addr: 0, params: [], _scope: {{VM_VAR_GS}} };\n  var __result__ = await {{VM_FN_F}}(eF, [], {{VM_VAR_GS}}, undefined, {{VM_VAR_GS}});\n  await new Promise(function(r) { {{VM_FN_ST}}(r, {{KEEPALIVE_MS}}); });\n  return __result__;\n})();';
+    var template = '(async function() {\n  var __D__ = {{DEBUG_FLAG}};\n  var __E__ = {{BYTECODE}};\n  var __S__ = {{BC_SEED}};\n  var __C__ = {{CONSTANTS}};\n  var __X__ = {{EXTERNAL_APIS}};\n\n  {{DEAD_CODE}}\n\n  var {{VM_VAR_G}} = typeof global !== "undefined" ? global : (typeof window !== "undefined" ? window : this);\n  var {{VM_FN_ST}} = {{VM_VAR_G}}.setTimeout;\n\n  var __BNC__ = {{BN_CHUNKS}};\n  var __BNK__ = {{BN_KEY}};\n  var __BN__ = [];\n  var __BNI__ = 0;\n  for (var __BNJ__ = 0; __BNJ__ < __BNC__.length; ) {\n    var __BNL__ = __BNC__[__BNJ__++];\n    var __BNS__ = "";\n    for (var __BNK2__ = 0; __BNK2__ < __BNL__; __BNK2__++) __BNS__ += String.fromCharCode(__BNC__[__BNJ__++] ^ ((__BNK__ + __BNI__ * 7 + __BNK2__ * 13) & 255));\n    __BN__.push(__BNS__);\n    __BNI__++;\n  }\n\n  var {{VM_VAR_GS}} = new Map();\n  var {{VM_VAR_BI}} = new Map();\n  for (var i = 0; i < __BN__.length; i++) {\n    var n = __BN__[i];\n    if (typeof {{VM_VAR_G}}[n] !== "undefined") {\n      var _fn = {{VM_VAR_G}}[n];\n      if (n === "setTimeout" || n === "clearTimeout" || n === "setInterval" || n === "clearInterval") _fn = _fn.bind({{VM_VAR_G}});\n      {{VM_VAR_BI}}.set(n, _fn); {{VM_VAR_GS}}.set(n, _fn);\n    }\n  }\n  var __EK__ = Object.keys(__X__);\n  for (var i = 0; i < __EK__.length; i++) {\n    var k = __EK__[i], v = __X__[k];\n    if (typeof v !== "undefined") {\n      if ((k === "setTimeout" || k === "clearTimeout" || k === "setInterval" || k === "clearInterval") && typeof v === "function") v = v.bind({{VM_VAR_G}});\n      {{VM_VAR_BI}}.set(k, v); {{VM_VAR_GS}}.set(k, v);\n    }\n  }\n\n  {{PLAIN_FUNCTIONS}}\n\n  {{PF_INIT}}\n\n  var {{VM_FN_D}} = function(s, l) {\n    var k = [];\n    for (var i = 0; i < l; i++) {\n      var h = s[i % s.length] ^ ((i * 157 + 63) & 255);\n      for (var j = 0; j < s.length; j++) h = ((h << 3) - h + s[j]) | 0;\n      k.push(h & 255);\n    }\n    return k;\n  };\n\n  var __K__ = {{VM_FN_D}}(__S__, Math.max(__E__.length, 40));\n  var __B__ = new Uint8Array(__E__.length);\n  for (var i = 0; i < __E__.length; i++) __B__[i] = __E__[i] ^ __K__[i % __K__.length];\n\n\n  var __OP__ = {{OP_XOR_KEY}};\n  for (var i = 0; i < __B__.length; i++) __B__[i] ^= __OP__;\n\n  var __DC__ = [];\n  for (var i = 0; i < __C__.length; i++) {\n    var c = __C__[i];\n    if (c && typeof c.l === "number" && c.c) {\n      __DC__[i] = { _e: true, _l: c.l, _c: c.c, _i: i };\n    } else if (c && typeof c.a === "number") {\n      var fd = { addr: c.a, params: c.p || [], async: c.as || false, isArrow: c.ia || false };\n      if (c.nm) fd.name = c.nm;\n      __DC__[i] = fd;\n    } else {\n      __DC__[i] = c;\n    }\n  }\n\n  function {{VM_FN_GC}}(idx) {\n    var v = __DC__[idx];\n    if (v && v._e) {\n      var s = "";\n      var __SK__ = {{STR_XOR_OFFSET}};\n      for (var j = 0; j < v._l; j++) s += String.fromCharCode(v._c[j] ^ ((__SK__ + v._i * 17 + j * 31 + 73) & 255));\n      return s;\n    }\n    if (v && typeof v === "object") {\n      if (v.__regex) return new RegExp(v.pattern, v.flags);\n      if (v.__bigint) return BigInt(v.value);\n      if (v.__undef) return undefined;\n      if (v.__null) return null;\n      if (v.__nan) return NaN;\n      if (v.__inf !== undefined) return v.__inf ? Infinity : -Infinity;\n      if (v.__taggedTemplate) { var arr = v.strings.slice(); arr.raw = v.raw; return arr; }\n    }\n    return v;\n  }\n\n  var __OT_ALL__ = {{OPCODE_TABLES}};\n  var __OT_CUR__ = 0;\n  var __OT__ = __OT_ALL__[0];\n  var __NUM_SEG__ = {{NUM_SEGMENTS}};\n  var __SEG_KEYS__ = {{SEGMENT_KEYS}};\n\n  var __V2G__ = {{VARIANT_TO_GROUP}};\n\n  var {{VM_VAR_VM}} = [];\n\n  function {{VM_FN_V}}(pScope) {\n    this.s = []; this.i = 0; this.c = new Map();\n    if (pScope) this.c.__p = pScope;\n    this.l = []; this.t = {{VM_VAR_GS}}; this.y = []; this._retv = undefined; this._throwing = false;\n    this.fakeStack = []; this._sk = 0;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_V}});\n\n  var __SK__ = {{STACK_KEY}};\n  function {{VM_FN_SP}}(st, v) {\n    st.s.push(v);\n  }\n  function {{VM_FN_SK}}(st) {\n    var v = st.s.pop();\n    if (typeof v === "number" && !isNaN(v) && isFinite(v)) {\n      st._sk = Math.max(0, (st._sk || 1) - 1);\n      var kb = __SK__[(st._sk || 0) % __SK__.length];\n      if (Number.isInteger(v) && v >= -2147483648 && v <= 2147483647) {\n        return v ^ ((kb << 24) | (kb << 16) | (kb << 8) | kb);\n      } else {\n        return v - kb * 0.000001;\n      }\n    } else if (typeof v === "string") {\n      st._sk = Math.max(0, (st._sk || 1) - 1);\n      var kb = __SK__[(st._sk || 0) % __SK__.length];\n      var ds = ""; for (var i = 0; i < v.length; i++) ds += String.fromCharCode(v.charCodeAt(i) ^ kb);\n      return ds;\n    }\n    return v;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_SP}}); {{VM_VAR_VM}}.push({{VM_FN_SK}});\n  function {{VM_FN_L}}(st, name) {\n    var s = st.c;\n    while (s) { if (s.has(name)) return s.get(name); s = s.__p; }\n    if ({{VM_VAR_GS}}.has(name)) return {{VM_VAR_GS}}.get(name);\n    if ({{VM_VAR_BI}}.has(name)) return {{VM_VAR_BI}}.get(name);\n    if (typeof {{VM_VAR_G}}[name] !== "undefined") return {{VM_VAR_G}}[name];\n    if (typeof __PF__ !== "undefined" && __PF__.hasOwnProperty(name)) return __PF__[name];\n    return undefined;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_L}});\n\n  function {{VM_FN_S}}(st, name, value) {\n    var s = st.c;\n    while (s) { if (s.has(name)) { s.set(name, value); if (typeof __PF__ !== "undefined" && __PF__.hasOwnProperty(name)) __PF__[name] = value; return; } s = s.__p; }\n    st.c.set(name, value);\n    if (typeof __PF__ !== "undefined" && __PF__.hasOwnProperty(name)) __PF__[name] = value;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_S}});\n\n  function {{VM_FN_SU}}(st, name, value) {\n    var s = st.c;\n    while (s) { if (s.has(name)) { s.set(name, value); if (typeof __PF__ !== "undefined" && __PF__.hasOwnProperty(name)) __PF__[name] = value; return; } s = s.__p; }\n    st.c.set(name, value);\n    if (typeof __PF__ !== "undefined" && __PF__.hasOwnProperty(name)) __PF__[name] = value;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_SU}});\n\n  function {{VM_FN_R}}(st) {\n    var v = (__B__[st.i] << 24) | (__B__[st.i + 1] << 16) | (__B__[st.i + 2] << 8) | __B__[st.i + 3];\n    st.i += 4; return v;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_R}});\n\n  async function {{VM_FN_XE}}(st) {\n    var M = 50000000, steps = 0;\n    while (st.i < __B__.length) {\n      try {\n      if (++steps > M) throw new Error("VM:max steps");\n      var opByte = __B__[st.i++] ^ ((st.i - 1) & 0xFF);\n      var gidx = __V2G__[opByte];\n      if (gidx === undefined) { __B__ = new Uint8Array(0); __DC__ = []; throw new Error("Unknown op:" + opByte); }\n\n      switch (gidx) {\n{{SWITCH_BODY}}\n        default:\n          __B__ = new Uint8Array(0); __DC__ = [];\n          throw new Error("Unknown op:" + opByte);\n      }\n      } catch (__vmErr__) {\n        if (st.y.length === 0) throw __vmErr__;\n        var __ti__ = st.y.pop();\n        st.s.push(__vmErr__);\n        if (__ti__.catchAddr >= 0) { st.i = __ti__.catchAddr; continue; }\n        if (__ti__.finallyAddr >= 0) { st.i = __ti__.finallyAddr; continue; }\n        throw __vmErr__;\n      }\n    }\n    return st.s.length ? st.s[st.s.length - 1] : undefined;\n  }\n  function {{VM_FN_XS}}(st) {\n    var M = 10000000, steps = 0;\n    while (st.i < __B__.length) {\n      try {\n      if (++steps > M) throw new Error("VM:max steps");\n      var opByte = __B__[st.i++] ^ ((st.i - 1) & 0xFF);\n      var gidx = __V2G__[opByte];\n      if (gidx === undefined) { __B__ = new Uint8Array(0); __DC__ = []; throw new Error("Unknown op:" + opByte); }\n\n      switch (gidx) {\n{{SWITCH_BODY_SYNC}}\n        default:\n          __B__ = new Uint8Array(0); __DC__ = [];\n          throw new Error("Unknown op:" + opByte);\n      }\n      } catch (__vmErr__) {\n        if (st.y.length === 0) throw __vmErr__;\n        var __ti__ = st.y.pop();\n        st.s.push(__vmErr__);\n        if (__ti__.catchAddr >= 0) { st.i = __ti__.catchAddr; continue; }\n        if (__ti__.finallyAddr >= 0) { st.i = __ti__.finallyAddr; continue; }\n        throw __vmErr__;\n      }\n    }\n    return st.s.length ? st.s[st.s.length - 1] : undefined;\n  }\n\n  {{VM_VAR_VM}}.push({{VM_FN_XE}});\n  {{VM_VAR_VM}}.push({{VM_FN_XS}});\n\n  function {{VM_FN_W}}(fd, ps) {\n    var cs = ps ? ps.c : {{VM_VAR_GS}};\n    var ct = ps ? ps.t : undefined;\n    var vf = function() {\n      var a = Array.prototype.slice.call(arguments);\n      return {{VM_FN_F}}(fd, a, cs, ct, this);\n    };\n    vf._v = true; vf._o = fd;\n    vf.prototype = fd.prototype || {}; vf._s = cs;\n    return vf;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_W}});\n\n  function {{VM_FN_F}}(fd, a, cs, ct, cl) {\n    var st = new {{VM_FN_V}}(cs || {{VM_VAR_GS}});\n    st._cs = cs || null;\n    var params = fd.params || [];\n    for (var i = 0; i < params.length; i++) {\n      var p = params[i];\n      if (p.charAt(0) === "." && p.charAt(1) === "." && p.charAt(2) === ".") {\n        var rest = []; for (var j = i; j < a.length; j++) rest.push(a[j]);\n        st.c.set(p.slice(3), rest); break;\n      } else { st.c.set(p, i < a.length ? a[i] : undefined); }\n    }\n    st.c.set("arguments", a);\n    if (fd._this !== undefined) { st.t = fd._this; }\n    else if (fd.isArrow) { st.t = ct || {{VM_VAR_GS}}; }\n    else { st.t = cl || {{VM_VAR_GS}}; }\n    st.i = fd.addr;\n    if (fd.async) return {{VM_FN_XE}}(st); return {{VM_FN_XS}}(st);\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_F}});\n\n  var eF = { addr: 0, params: [], _scope: {{VM_VAR_GS}} };\n  var __result__ = await {{VM_FN_F}}(eF, [], {{VM_VAR_GS}}, undefined, {{VM_VAR_GS}});\n  await new Promise(function(r) { {{VM_FN_ST}}(r, {{KEEPALIVE_MS}}); });\n  return __result__;\n})();';
     var opts = {
       mangleIdentifiers: true,
       injectJunkExpressions: true,
@@ -9078,6 +9078,13 @@ var Obscura = (() => {
     var opTableJSON = JSON.stringify(segmentTables);
     var stackKey = [];
     for (var ski = 0; ski < 16; ski++) stackKey.push(0);
+    var plainFunctionsCode = "";
+    if (input.plainFunctions && input.plainFunctions.length > 0) {
+      for (var pfi = 0; pfi < input.plainFunctions.length; pfi++) {
+        var pf = input.plainFunctions[pfi];
+        plainFunctionsCode += pf.source + "\n" + names.gS + ".set(" + JSON.stringify(pf.name) + ", " + pf.name + ");\n";
+      }
+    }
     var templateVars = {
       "{{DEBUG_FLAG}}": "false",
       "{{BYTECODE}}": JSON.stringify(finalBytecode),
@@ -9107,6 +9114,8 @@ var Obscura = (() => {
       "{{STR_XOR_OFFSET}}": "0",
       "{{BC_INTEGRITY}}": "0",
       "{{DEAD_CODE}}": "",
+      "{{PLAIN_FUNCTIONS}}": plainFunctionsCode,
+      "{{PF_INIT}}": input.pfInitCode || "",
       "{{SWITCH_BODY}}": switchBodies.async,
       "{{SWITCH_BODY_SYNC}}": switchBodies.sync,
       "{{OPCODE_TABLES}}": opTableJSON,
@@ -9190,6 +9199,133 @@ var Obscura = (() => {
     }
     return newObj;
   }
+  function collectDeclaredNames(node, names, isProp) {
+    if (!node || typeof node !== "object" || isProp) return;
+    if (node.type === "VariableDeclaration") {
+      for (var di = 0; di < node.declarations.length; di++) {
+        var decl = node.declarations[di];
+        if (decl.id.type === "Identifier") names.add(decl.id.name);
+        else if (decl.id.type === "ArrayPattern") {
+          for (var ei = 0; ei < decl.id.elements.length; ei++) {
+            var el = decl.id.elements[ei];
+            if (el && el.type === "Identifier") names.add(el.name);
+          }
+        } else if (decl.id.type === "ObjectPattern") {
+          for (var pi = 0; pi < decl.id.properties.length; pi++) {
+            var prop = decl.id.properties[pi];
+            if (prop.value.type === "Identifier") names.add(prop.value.name);
+          }
+        }
+      }
+      return;
+    }
+    if (node.type === "FunctionDeclaration" || node.type === "FunctionExpression" || node.type === "ArrowFunctionExpression") {
+      if (node.id) names.add(node.id.name);
+      if (node.params) {
+        for (var pi = 0; pi < node.params.length; pi++) {
+          var p = node.params[pi];
+          if (p.type === "Identifier") names.add(p.name);
+          else if (p.type === "RestElement" && p.argument.type === "Identifier") names.add(p.argument.name);
+          else if (p.type === "AssignmentPattern" && p.left.type === "Identifier") names.add(p.left.name);
+        }
+      }
+      return;
+    }
+    if (node.type === "CatchClause") {
+      if (node.param && node.param.type === "Identifier") names.add(node.param.name);
+      return;
+    }
+    for (var key in node) {
+      if (key === "start" || key === "end" || key === "loc" || key === "range" || key === "comments" || key === "type") continue;
+      var val = node[key];
+      var childIsProp = key === "property" && node.type === "MemberExpression" && !node.computed;
+      if (Array.isArray(val)) {
+        for (var ai = 0; ai < val.length; ai++) collectDeclaredNames(val[ai], names, false);
+      } else if (val && typeof val === "object") collectDeclaredNames(val, names, childIsProp);
+    }
+  }
+  function collectFreeVariables(node, declared, free, parentIsProp) {
+    if (!node || typeof node !== "object" || parentIsProp) return;
+    if (node.type === "Identifier" && !declared.has(node.name)) {
+      free.add(node.name);
+    } else if (node.type === "FunctionDeclaration" || node.type === "FunctionExpression" || node.type === "ArrowFunctionExpression") {
+      return;
+    } else if (node.type === "CatchClause") {
+      var catchDeclared = new Set(declared);
+      if (node.param && node.param.type === "Identifier") catchDeclared.add(node.param.name);
+      collectFreeVariablesInBody(node.body, catchDeclared, free);
+      return;
+    }
+    for (var key in node) {
+      if (key === "start" || key === "end" || key === "loc" || key === "range" || key === "comments" || key === "type") continue;
+      var val = node[key];
+      var childIsProp = key === "property" && node.type === "MemberExpression" && !node.computed;
+      if (Array.isArray(val)) {
+        for (var ai = 0; ai < val.length; ai++) collectFreeVariables(val[ai], declared, free, false);
+      } else if (val && typeof val === "object") collectFreeVariables(val, declared, free, childIsProp);
+    }
+  }
+  function collectFreeVariablesInBody(node, declared, free) {
+    if (!node) return;
+    if (Array.isArray(node)) {
+      for (var ai = 0; ai < node.length; ai++) collectFreeVariables(node[ai], declared, free, false);
+    } else if (node.type === "BlockStatement") {
+      collectDeclaredNames(node, declared, false);
+      if (node.body) {
+        for (var bi = 0; bi < node.body.length; bi++) collectFreeVariables(node.body[bi], declared, free, false);
+      }
+    } else {
+      collectFreeVariables(node, declared, free, false);
+    }
+  }
+  function rewriteFreeVars(node, freeVars, pfName, isProp) {
+    if (!node || typeof node !== "object" || isProp) return;
+    if (node.type === "Identifier" && freeVars.has(node.name) && node.name !== pfName) {
+      node.type = "MemberExpression";
+      node.object = { type: "Identifier", name: pfName, start: node.start, end: node.start };
+      node.property = { type: "Identifier", name: node.name, start: node.start, end: node.end };
+      node.computed = false;
+      node.optional = false;
+      delete node.name;
+      return;
+    }
+    if (node.type === "FunctionDeclaration" || node.type === "FunctionExpression" || node.type === "ArrowFunctionExpression") {
+      return;
+    }
+    for (var key in node) {
+      if (key === "start" || key === "end" || key === "loc" || key === "range" || key === "comments" || key === "type") continue;
+      var val = node[key];
+      var childIsProp = key === "property" && node.type === "MemberExpression" && !node.computed;
+      if (Array.isArray(val)) {
+        for (var ai = 0; ai < val.length; ai++) rewriteFreeVars(val[ai], freeVars, pfName, false);
+      } else if (val && typeof val === "object") rewriteFreeVars(val, freeVars, pfName, childIsProp);
+    }
+  }
+  function collectTopLevelDeclarations(ast) {
+    var decls = [];
+    for (var si = 0; si < ast.body.length; si++) {
+      var stmt = ast.body[si];
+      if (stmt.type === "VariableDeclaration") {
+        for (var di = 0; di < stmt.declarations.length; di++) {
+          var decl = stmt.declarations[di];
+          var name = null;
+          if (decl.id.type === "Identifier") name = decl.id.name;
+          if (name) {
+            var init = null;
+            if (decl.init) {
+              try {
+                init = generate(decl.init);
+              } catch (e) {
+                init = null;
+              }
+            }
+            decls.push({ name, init });
+          }
+        }
+      }
+    }
+    return decls;
+  }
   function ObfuscateSource(source, options) {
     var opts = { ...defaultOptions2(), ...options };
     var warnings = [];
@@ -9202,44 +9338,77 @@ var Obscura = (() => {
     });
     ast.comments = comments;
     var excludeSet = findFunctionsToExclude(ast);
-    var plainFunctionsCode = [];
+    var plainFunctions = [];
     var functionNames = [];
+    var allFreeVars = /* @__PURE__ */ new Set();
+    var excludedNames = /* @__PURE__ */ new Set();
+    excludeSet.forEach(function(fn) {
+      if (fn.id && fn.id.name) excludedNames.add(fn.id.name);
+    });
     excludeSet.forEach(function(fn) {
       var name = fn.id ? fn.id.name : null;
-      var code = generate(fn);
-      if (name) {
-        plainFunctionsCode.push("globalThis." + name + " = " + code);
-        functionNames.push(name);
-      } else {
-        plainFunctionsCode.push(code);
+      if (!name) return;
+      var declared = /* @__PURE__ */ new Set();
+      if (fn.id) declared.add(fn.id.name);
+      if (fn.params) {
+        for (var pi = 0; pi < fn.params.length; pi++) {
+          var p = fn.params[pi];
+          if (p.type === "Identifier") declared.add(p.name);
+          else if (p.type === "RestElement" && p.argument.type === "Identifier") declared.add(p.argument.name);
+          else if (p.type === "AssignmentPattern" && p.left.type === "Identifier") declared.add(p.left.name);
+        }
       }
+      collectDeclaredNames(fn.body, declared, false);
+      var freeVars = /* @__PURE__ */ new Set();
+      if (fn.body && typeof fn.body === "object") collectFreeVariablesInBody(fn.body, declared, freeVars);
+      excludedNames.forEach(function(en) {
+        freeVars.delete(en);
+      });
+      var builtins = /* @__PURE__ */ new Set(["undefined", "NaN", "Infinity", "console", "Math", "JSON", "Promise", "Object", "Array", "String", "Number", "Boolean", "Function", "RegExp", "Date", "Error", "Map", "Set", "Symbol", "parseInt", "parseFloat", "isNaN", "isFinite", "eval", "decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent"]);
+      builtins.forEach(function(bi) {
+        freeVars.delete(bi);
+      });
+      freeVars.forEach(function(fv) {
+        allFreeVars.add(fv);
+      });
+      var fnClone = JSON.parse(JSON.stringify(fn));
+      if (fnClone.body && typeof fnClone.body === "object") rewriteFreeVars(fnClone.body, freeVars, "__PF__", false);
+      var source2 = generate(fnClone);
+      plainFunctions.push({ name, source: source2 });
+      functionNames.push(name);
     });
+    var topDecls = collectTopLevelDeclarations(ast);
+    var pfInitCode = "var __PF__ = {};";
+    for (var di = 0; di < topDecls.length; di++) {
+      if (allFreeVars.has(topDecls[di].name)) {
+        pfInitCode += "__PF__." + topDecls[di].name + " = " + (topDecls[di].init || "undefined") + ";";
+      }
+    }
     var filteredAst = cloneASTWithoutExcluded(ast, excludeSet);
     var filteredSource = generate(filteredAst);
     var compiler = new BytecodeCompiler();
     var preserveSet = new Set(functionNames);
+    allFreeVars.forEach(function(fv) {
+      preserveSet.add(fv);
+    });
     var compileResult = compiler.Compile(filteredSource, preserveSet, opts.injectJunkExpressions);
     var bytecode = compileResult.bytecode;
     var constants = compileResult.constants;
     var externalAPIs = compileResult.externalAPIs;
     var compileWarnings = compileResult.warnings;
-    for (var ni = 0; ni < functionNames.length; ni++) externalAPIs.add(functionNames[ni]);
     for (var wi = 0; wi < compileWarnings.length; wi++) warnings.push(compileWarnings[wi]);
     var vmCode = BuildVM({
       bytecode,
       constants,
       externalAPIs,
       debugMode: opts.debugMode || false,
-      options: opts
+      options: opts,
+      plainFunctions,
+      pfInitCode
     });
-    var combined = "";
-    if (plainFunctionsCode.length > 0) {
-      combined = plainFunctionsCode.join(";\n") + ";\n";
-    }
-    combined += vmCode;
-    var outputCode = combined;
+    var outputCode = vmCode;
     if (opts.minifyOutput) {
-      outputCode = Minify(combined);
+      outputCode = Minify(vmCode);
     }
     return {
       code: outputCode,
