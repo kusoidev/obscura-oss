@@ -28,7 +28,7 @@
     var n = __BN__[i];
     if (typeof {{VM_VAR_G}}[n] !== "undefined") {
       var _fn = {{VM_VAR_G}}[n];
-      if (typeof _fn === "function") _fn = _fn.bind({{VM_VAR_G}});
+      if (n === "setTimeout" || n === "clearTimeout" || n === "setInterval" || n === "clearInterval") _fn = _fn.bind({{VM_VAR_G}});
       {{VM_VAR_BI}}.set(n, _fn); {{VM_VAR_GS}}.set(n, _fn);
     }
   }
@@ -36,7 +36,7 @@
   for (var i = 0; i < __EK__.length; i++) {
     var k = __EK__[i], v = __X__[k];
     if (typeof v !== "undefined") {
-      if (typeof v === "function") v = v.bind({{VM_VAR_G}});
+      if ((k === "setTimeout" || k === "clearTimeout" || k === "setInterval" || k === "clearInterval") && typeof v === "function") v = v.bind({{VM_VAR_G}});
       {{VM_VAR_BI}}.set(k, v); {{VM_VAR_GS}}.set(k, v);
     }
   }
