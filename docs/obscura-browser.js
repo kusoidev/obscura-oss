@@ -9082,7 +9082,7 @@ var Obscura = (() => {
     if (input.plainFunctions && input.plainFunctions.length > 0) {
       for (var pfi = 0; pfi < input.plainFunctions.length; pfi++) {
         var pf = input.plainFunctions[pfi];
-        plainFunctionsCode += pf.source + "\n" + names.gS + ".set(" + JSON.stringify(pf.name) + ", " + pf.name + ");\n";
+        plainFunctionsCode += pf.source + ";\n" + names.gS + ".set(" + JSON.stringify(pf.name) + ", " + pf.name + ");\n";
       }
     }
     var templateVars = {
@@ -9152,8 +9152,27 @@ var Obscura = (() => {
 
   // src/core.ts
   function Minify(code) {
-    code = code.replace(/\/\/.*$/gm, "");
-    return code.replace(/\s+/g, " ").replace(/ ([{}();,:])/g, "$1").replace(/([{}();,:]) /g, "$1").trim();
+    var out = "";
+    var inString = null;
+    for (var i = 0; i < code.length; i++) {
+      var ch = code[i];
+      if (inString) {
+        out += ch;
+        if (ch === "\\") {
+          i++;
+          out += code[i];
+        } else if (ch === inString) inString = null;
+      } else if (ch === '"' || ch === "'") {
+        inString = ch;
+        out += ch;
+      } else if (ch === "/" && code[i + 1] === "/") {
+        while (i < code.length && code[i] !== "\n") i++;
+        if (code[i] === "\n") out += "\n";
+      } else {
+        out += ch;
+      }
+    }
+    return out.replace(/\s+/g, " ").replace(/ ([{}();,:])/g, "$1").replace(/([{}();,:]) /g, "$1").trim();
   }
   function findFunctionsToExclude(ast) {
     var excludeSet = /* @__PURE__ */ new Set();
