@@ -64,6 +64,128 @@ function cloneASTWithoutExcluded(ast: any, excludeSet: Set<any>): any {
   return newObj;
 }
 
+
+function collectDeclaredNames(node: any, names: Set<string>, isProp: boolean): void {
+  if (!node || typeof node !== 'object' || isProp) return;
+  if (node.type === 'VariableDeclaration') {
+    for (var di = 0; di < node.declarations.length; di++) {
+      var decl = node.declarations[di];
+      if (decl.id.type === 'Identifier') names.add(decl.id.name);
+      else if (decl.id.type === 'ArrayPattern') {
+        for (var ei = 0; ei < decl.id.elements.length; ei++) {
+          var el = decl.id.elements[ei];
+          if (el && el.type === 'Identifier') names.add(el.name);
+        }
+      } else if (decl.id.type === 'ObjectPattern') {
+        for (var pi = 0; pi < decl.id.properties.length; pi++) {
+          var prop = decl.id.properties[pi];
+          if (prop.value.type === 'Identifier') names.add(prop.value.name);
+        }
+      }
+    }
+    return;
+  }
+  if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression') {
+    if (node.id) names.add(node.id.name);
+    if (node.params) {
+      for (var pi = 0; pi < node.params.length; pi++) {
+        var p = node.params[pi];
+        if (p.type === 'Identifier') names.add(p.name);
+        else if (p.type === 'RestElement' && p.argument.type === 'Identifier') names.add(p.argument.name);
+        else if (p.type === 'AssignmentPattern' && p.left.type === 'Identifier') names.add(p.left.name);
+      }
+    }
+    return;
+  }
+  if (node.type === 'CatchClause') {
+    if (node.param && node.param.type === 'Identifier') names.add(node.param.name);
+    return;
+  }
+  for (var key in node) {
+    if (key === 'start' || key === 'end' || key === 'loc' || key === 'range' || key === 'comments' || key === 'type') continue;
+    var val = node[key];
+    var childIsProp = key === 'property' && node.type === 'MemberExpression' && !node.computed;
+    if (Array.isArray(val)) { for (var ai = 0; ai < val.length; ai++) collectDeclaredNames(val[ai], names, false); }
+    else if (val && typeof val === 'object') collectDeclaredNames(val, names, childIsProp);
+  }
+}
+
+function collectFreeVariables(node: any, declared: Set<string>, free: Set<string>, parentIsProp: boolean): void {
+  if (!node || typeof node !== 'object' || parentIsProp) return;
+  if (node.type === 'Identifier' && !declared.has(node.name)) {
+    free.add(node.name);
+  } else if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression') {
+    return;
+  } else if (node.type === 'CatchClause') {
+    var catchDeclared = new Set(declared);
+    if (node.param && node.param.type === 'Identifier') catchDeclared.add(node.param.name);
+    collectFreeVariablesInBody(node.body, catchDeclared, free);
+    return;
+  }
+  for (var key in node) {
+    if (key === 'start' || key === 'end' || key === 'loc' || key === 'range' || key === 'comments' || key === 'type') continue;
+    var val = node[key];
+    var childIsProp = key === 'property' && node.type === 'MemberExpression' && !node.computed;
+    if (Array.isArray(val)) { for (var ai = 0; ai < val.length; ai++) collectFreeVariables(val[ai], declared, free, false); }
+    else if (val && typeof val === 'object') collectFreeVariables(val, declared, free, childIsProp);
+  }
+}
+
+function collectFreeVariablesInBody(node: any, declared: Set<string>, free: Set<string>): void {
+  if (!node) return;
+  if (Array.isArray(node)) {
+    for (var ai = 0; ai < node.length; ai++) collectFreeVariables(node[ai], declared, free, false);
+  } else if (node.type === 'BlockStatement') {
+    collectDeclaredNames(node, declared, false);
+    if (node.body) { for (var bi = 0; bi < node.body.length; bi++) collectFreeVariables(node.body[bi], declared, free, false); }
+  } else {
+    collectFreeVariables(node, declared, free, false);
+  }
+}
+
+function rewriteFreeVars(node: any, freeVars: Set<string>, pfName: string, isProp?: boolean): void {
+  if (!node || typeof node !== 'object' || isProp) return;
+  if (node.type === 'Identifier' && freeVars.has(node.name) && node.name !== pfName) {
+    node.type = 'MemberExpression';
+    node.object = { type: 'Identifier', name: pfName, start: node.start, end: node.start };
+    node.property = { type: 'Identifier', name: node.name, start: node.start, end: node.end };
+    node.computed = false;
+    node.optional = false;
+    delete node.name;
+    return;
+  }
+  if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression') {
+    return;
+  }
+  for (var key in node) {
+    if (key === 'start' || key === 'end' || key === 'loc' || key === 'range' || key === 'comments' || key === 'type') continue;
+    var val = node[key];
+    var childIsProp = key === 'property' && node.type === 'MemberExpression' && !node.computed;
+    if (Array.isArray(val)) { for (var ai = 0; ai < val.length; ai++) rewriteFreeVars(val[ai], freeVars, pfName, false); }
+    else if (val && typeof val === 'object') rewriteFreeVars(val, freeVars, pfName, childIsProp);
+  }
+}
+
+function collectTopLevelDeclarations(ast: any): { name: string; init: string | null }[] {
+  var decls: { name: string; init: string | null }[] = [];
+  for (var si = 0; si < ast.body.length; si++) {
+    var stmt = ast.body[si];
+    if (stmt.type === 'VariableDeclaration') {
+      for (var di = 0; di < stmt.declarations.length; di++) {
+        var decl = stmt.declarations[di];
+        var name: string | null = null;
+        if (decl.id.type === 'Identifier') name = decl.id.name;
+        if (name) {
+          var init: string | null = null;
+          if (decl.init) { try { init = astring.generate(decl.init); } catch(e) { init = null; } }
+          decls.push({ name: name, init: init });
+        }
+      }
+    }
+  }
+  return decls;
+}
+
 export function ObfuscateSource(source: string, options?: Partial<ObfuscatorOptions>): ObfuscateResult {
   var opts: ObfuscatorOptions = { ...defaultOptions(), ...options };
   var warnings: string[] = [];
@@ -78,32 +200,68 @@ export function ObfuscateSource(source: string, options?: Partial<ObfuscatorOpti
   (ast as any).comments = comments;
 
   var excludeSet = findFunctionsToExclude(ast);
-  var plainFunctionsCode: string[] = [];
+  var plainFunctions: { name: string; source: string }[] = [];
   var functionNames: string[] = [];
+  var allFreeVars = new Set<string>();
+  var excludedNames = new Set<string>();
+
+  excludeSet.forEach(function(fn: any) {
+    if (fn.id && fn.id.name) excludedNames.add(fn.id.name);
+  });
 
   excludeSet.forEach(function(fn: any) {
     var name = fn.id ? fn.id.name : null;
-    var code = astring.generate(fn);
-    if (name) {
-      plainFunctionsCode.push('globalThis.' + name + ' = ' + code);
-      functionNames.push(name);
-    } else {
-      plainFunctionsCode.push(code);
+    if (!name) return;
+
+    var declared = new Set<string>();
+    if (fn.id) declared.add(fn.id.name);
+    if (fn.params) {
+      for (var pi = 0; pi < fn.params.length; pi++) {
+        var p = fn.params[pi];
+        if (p.type === 'Identifier') declared.add(p.name);
+        else if (p.type === 'RestElement' && p.argument.type === 'Identifier') declared.add(p.argument.name);
+        else if (p.type === 'AssignmentPattern' && p.left.type === 'Identifier') declared.add(p.left.name);
+      }
     }
+    collectDeclaredNames(fn.body, declared, false);
+
+    var freeVars = new Set<string>();
+    if (fn.body && typeof fn.body === 'object') collectFreeVariablesInBody(fn.body, declared, freeVars);
+
+    excludedNames.forEach(function(en) { freeVars.delete(en); });
+    var builtins = new Set(['undefined','NaN','Infinity','console','Math','JSON','Promise','Object','Array','String','Number','Boolean','Function','RegExp','Date','Error','Map','Set','Symbol','parseInt','parseFloat','isNaN','isFinite','eval','decodeURI','decodeURIComponent','encodeURI','encodeURIComponent']);
+    builtins.forEach(function(bi) { freeVars.delete(bi); });
+
+    freeVars.forEach(function(fv) { allFreeVars.add(fv); });
+
+    var fnClone = JSON.parse(JSON.stringify(fn));
+    if (fnClone.body && typeof fnClone.body === 'object') rewriteFreeVars(fnClone.body, freeVars, '__PF__', false);
+    var source = astring.generate(fnClone);
+
+    plainFunctions.push({ name: name, source: source });
+    functionNames.push(name);
   });
+
+  var topDecls = collectTopLevelDeclarations(ast);
+  var pfInitCode = 'var __PF__ = {};';
+  for (var di = 0; di < topDecls.length; di++) {
+    if (allFreeVars.has(topDecls[di].name)) {
+      pfInitCode += '__PF__.' + topDecls[di].name + ' = ' + (topDecls[di].init || 'undefined') + ';';
+    }
+  }
 
   var filteredAst = cloneASTWithoutExcluded(ast, excludeSet);
   var filteredSource = astring.generate(filteredAst);
 
   var compiler = new BytecodeCompiler();
   var preserveSet = new Set(functionNames);
+  allFreeVars.forEach(function(fv) { preserveSet.add(fv); });
   var compileResult = compiler.Compile(filteredSource, preserveSet, opts.injectJunkExpressions);
   var bytecode = compileResult.bytecode;
   var constants = compileResult.constants;
   var externalAPIs = compileResult.externalAPIs;
   var compileWarnings = compileResult.warnings;
 
-  for (var ni = 0; ni < functionNames.length; ni++) externalAPIs.add(functionNames[ni]);
   for (var wi = 0; wi < compileWarnings.length; wi++) warnings.push(compileWarnings[wi]);
 
   var vmCode = BuildVM({
@@ -112,17 +270,13 @@ export function ObfuscateSource(source: string, options?: Partial<ObfuscatorOpti
     externalAPIs: externalAPIs,
     debugMode: opts.debugMode || false,
     options: opts,
+    plainFunctions: plainFunctions,
+    pfInitCode: pfInitCode,
   });
 
-  var combined = '';
-  if (plainFunctionsCode.length > 0) {
-    combined = plainFunctionsCode.join(';\n') + ';\n';
-  }
-  combined += vmCode;
-
-  var outputCode = combined;
+  var outputCode = vmCode;
   if (opts.minifyOutput) {
-    outputCode = Minify(combined);
+    outputCode = Minify(vmCode);
   }
 
   return {
