@@ -29,7 +29,21 @@ At runtime, the VM decrypts the bytecode, walks the instruction stream, and exec
 
 Classes with inheritance, closures, destructuring, rest/spread, default parameters, template literals, try/catch/finally, switch, loops, Map/Set, Symbol, JSON, regex — all tested.
 
-**What doesn't:** generator functions (`function*`), tagged template literals, `eval`/`new Function` at runtime (cannot work inside a VM), and deep recursion beyond roughly 1000 frames (fixed in Pro via trampoline dispatch). `import`/`export` statements compile as no-ops — the obfuscator operates on a single file at a time.
+**What doesn't:**
+
+| Feature | Why |
+|---------|-----|
+| Generators (`function*`, `async*`) | State machine compilation not implemented — obfuscation refused |
+| Tagged template literals | Tag function receives raw strings at runtime, can't be pre-compiled |
+| `eval` / `new Function` at runtime | Generated code executes in VM scope, not intended scope |
+| Deep recursion (>1000 frames) | JS engine stack limit — fixed in Pro via trampoline dispatch |
+| `import`/`export` | Compiled as no-op — obfuscator processes single files |
+| `extends Error`/`Array` | Native constructors use internal slots unreachable through VM wrappers |
+| `Function.name` / `.length` | Obfuscated — wrappers are anonymous for protection |
+| Class getters/setters | Not yet supported in OSS — available in Pro |
+| Computed class methods | Not yet supported in OSS — available in Pro |
+
+Everything else — classes, inheritance, closures, destructuring, rest/spread, default parameters, template literals, try/catch/finally, switch, loops, Map/Set, Symbol, JSON, regex, nullish coalescing, optional chaining, async/await — is fully supported and tested.
 
 ---
 
