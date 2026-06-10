@@ -275,6 +275,8 @@ export function ObfuscateSource(source: string, options?: Partial<ObfuscatorOpti
   allFreeVars.forEach(function(fv) { preserveSet.add(fv); });
   var allBuiltins = ['undefined','NaN','Infinity','console','Math','JSON','Promise','Object','Array','String','Number','Boolean','Function','RegExp','Date','Error','Map','Set','Symbol','parseInt','parseFloat','isNaN','isFinite','eval','decodeURI','decodeURIComponent','encodeURI','encodeURIComponent','TypeError','URIError','SyntaxError','RangeError','ReferenceError','EvalError'];
   for (var bi = 0; bi < allBuiltins.length; bi++) preserveSet.add(allBuiltins[bi]);
+  var allBuiltins = ['undefined','NaN','Infinity','console','Math','JSON','Promise','Object','Array','String','Number','Boolean','Function','RegExp','Date','Error','Map','Set','Symbol','parseInt','parseFloat','isNaN','isFinite','eval','decodeURI','decodeURIComponent','encodeURI','encodeURIComponent','TypeError','URIError','SyntaxError','RangeError','ReferenceError','EvalError'];
+  for (var bi = 0; bi < allBuiltins.length; bi++) preserveSet.add(allBuiltins[bi]);
   var compileResult = compiler.Compile(filteredSource, preserveSet, opts.injectJunkExpressions);
   var bytecode = compileResult.bytecode;
   var constants = compileResult.constants;

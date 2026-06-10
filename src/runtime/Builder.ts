@@ -232,7 +232,7 @@ export function BuildVM(input: BuildInput): string {
 
   var finalConstants = obfuscateConstants(input.constants);
 
-  var builtinNames = ["Object","Array","String","Number","Boolean","Function","RegExp","Date","Error","Math","JSON","Promise","Map","Set","Symbol","Infinity","NaN","undefined","eval","isFinite","isNaN","parseFloat","parseInt","decodeURI","decodeURIComponent","encodeURI","encodeURIComponent","TypeError","URIError","SyntaxError","RangeError","ReferenceError","EvalError","console","setTimeout","clearTimeout","setInterval","clearInterval"];
+  var builtinNames = ["Object","Array","String","Number","Boolean","Function","RegExp","Date","Error","Math","JSON","Promise","Map","Set","Symbol","Infinity","NaN","undefined","eval","isFinite","isNaN","parseFloat","parseInt","decodeURI","decodeURIComponent","encodeURI","encodeURIComponent","TypeError","URIError","SyntaxError","RangeError","ReferenceError","EvalError","TypeError","URIError","SyntaxError","RangeError","ReferenceError","EvalError","console","setTimeout","clearTimeout","setInterval","clearInterval"];
   var bnKey = seed[3] ^ seed[11] ^ seed[19] ^ seed[27];
   var bnChunks: number[] = [];
   for (var bi = 0; bi < builtinNames.length; bi++) {
