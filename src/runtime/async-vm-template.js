@@ -228,7 +228,9 @@
       return {{VM_FN_F}}(fd, a, cs, ct, this);
     };
     vf._v = true; vf._o = fd;
-    vf.prototype = fd.prototype || {}; vf._s = cs;
+    vf.prototype = fd.prototype || {}; vf._s = cs; vf._ct = ct;
+    if (fd.name) { try { Object.defineProperty(vf, 'name', { value: fd.name, writable: false, configurable: true }); } catch(e) {} }
+    if (fd.params) { try { Object.defineProperty(vf, 'length', { value: fd.params.length, writable: false, configurable: true }); } catch(e) {} }
     return vf;
   }
   {{VM_VAR_VM}}.push({{VM_FN_W}});
@@ -252,6 +254,13 @@
     if (fd.async) return {{VM_FN_XE}}(st); return {{VM_FN_XS}}(st);
   }
   {{VM_VAR_VM}}.push({{VM_FN_F}});
+
+  Object.defineProperty(Object.prototype, '__defineGS__', { value: function(key, fn, kind) {
+    var desc = { configurable: true, enumerable: true };
+    if (kind === 'get') desc.get = fn;
+    else desc.set = fn;
+    Object.defineProperty(this, key, desc);
+  }, configurable: true, writable: true });
 
   var eF = { addr: 0, params: [], _scope: {{VM_VAR_GS}} };
   var __result__ = await {{VM_FN_F}}(eF, [], {{VM_VAR_GS}}, undefined, {{VM_VAR_GS}});

@@ -1,6 +1,16 @@
+/**
+ * Control flow compilation helpers.
+ *
+ * Each function emits bytecode for a specific statement type by calling
+ * back into the compiler's emitPoly/emitJumpPoly/setLabel methods.
+ * Labels and loop stack entries handle break/continue targeting.
+ *
+ * @module statements
+ */
 
 import type { BytecodeCompiler } from '../BytecodeCompiler';
 
+/** if (test) { consequent } else { alternate } */
 export function compileIf(compiler: BytecodeCompiler, node: any): void {
   const endLabel = 'if_end_' + compiler.currentAddr();
   const elseLabel = node.alternate ? 'else_' + compiler.currentAddr() : endLabel;
@@ -14,6 +24,7 @@ export function compileIf(compiler: BytecodeCompiler, node: any): void {
   compiler.setLabel(endLabel);
 }
 
+/** switch (discriminant) { cases... } */
 export function compileSwitch(compiler: BytecodeCompiler, node: any): void {
   const endLabel = 'switch_end_' + compiler.currentAddr();
   compiler.loopStack.push({ breakLabel: endLabel, continueLabel: null });
@@ -27,6 +38,7 @@ export function compileSwitch(compiler: BytecodeCompiler, node: any): void {
   compiler.setLabel(endLabel); compiler.loopStack.pop();
 }
 
+/** for (init; test; update) { body } */
 export function compileFor(compiler: BytecodeCompiler, node: any): void {
   const testLabel = 'for_test_' + compiler.currentAddr();
   const updateLabel = 'for_update_' + compiler.currentAddr();
@@ -43,6 +55,7 @@ export function compileFor(compiler: BytecodeCompiler, node: any): void {
   compiler.loopStack.pop();
 }
 
+/** while (test) { body } */
 export function compileWhile(compiler: BytecodeCompiler, node: any): void {
   const testLabel = 'while_test_' + compiler.currentAddr();
   const endLabel = 'while_end_' + compiler.currentAddr();
@@ -56,6 +69,7 @@ export function compileWhile(compiler: BytecodeCompiler, node: any): void {
   compiler.loopStack.pop();
 }
 
+/** do { body } while (test) */
 export function compileDoWhile(compiler: BytecodeCompiler, node: any): void {
   const startLabel = 'do_start_' + compiler.currentAddr();
   const testLabel = 'do_test_' + compiler.currentAddr();
@@ -181,6 +195,7 @@ export function compileBreak(compiler: BytecodeCompiler, node: any): void {
   } else compiler.warnings.push('break outside loop');
 }
 
+/** continue [label] — same as break but uses continueLabel. */
 export function compileContinue(compiler: BytecodeCompiler, node: any): void {
   let target: number | string | null = null;
   if (node.label) target = compiler.labels.get(node.label.name) ?? null;

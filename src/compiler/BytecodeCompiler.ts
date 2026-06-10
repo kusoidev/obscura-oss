@@ -144,8 +144,49 @@ export class BytecodeCompiler {
       case 'Program':
         this._currentBlockBody = node.body;
         this._hoistVarDeclarations(node.body);
-        for (const stmt of node.body) { if (stmt.type === 'FunctionDeclaration' || stmt.type === 'ClassDeclaration') this.compileNode(stmt); }
-        for (const stmt of node.body) { if (stmt.type !== 'FunctionDeclaration' && stmt.type !== 'ClassDeclaration') this.compileNode(stmt); }
+        // First pass: hoist FunctionDeclarations and ClassDeclarations without computed members
+        for (const stmt of node.body) {
+          if (stmt.type === 'FunctionDeclaration') {
+            this.compileNode(stmt);
+          } else if (stmt.type === 'ClassDeclaration') {
+            // Check if class has any computed members
+            let hasComputed = false;
+            if (stmt.body && stmt.body.body) {
+              for (const member of stmt.body.body) {
+                if (member.computed || (member.key && member.computed)) {
+                  hasComputed = true;
+                  break;
+                }
+              }
+            }
+            // Only hoist classes without computed members
+            if (!hasComputed) {
+              this.compileNode(stmt);
+            }
+          }
+        }
+        // Second pass: compile everything else (including classes with computed members)
+        for (const stmt of node.body) {
+          if (stmt.type !== 'FunctionDeclaration') {
+            // Skip classes that were already hoisted
+            if (stmt.type === 'ClassDeclaration') {
+              let hasComputed = false;
+              if (stmt.body && stmt.body.body) {
+                for (const member of stmt.body.body) {
+                  if (member.computed || (member.key && member.computed)) {
+                    hasComputed = true;
+                    break;
+                  }
+                }
+              }
+              if (hasComputed) {
+                this.compileNode(stmt);
+              }
+            } else if (stmt.type !== 'ClassDeclaration') {
+              this.compileNode(stmt);
+            }
+          }
+        }
         this._currentBlockBody = null;
         break;
       case 'Literal':
@@ -310,7 +351,7 @@ export class BytecodeCompiler {
       case 'TryStatement': Stmts.compileTry(this, node); break;
       case 'ThrowStatement': this.compileNode(node.argument); this.emitPoly('THROW'); break;
       case 'TemplateLiteral': this.compileTemplate(node); break;
-      case 'TaggedTemplateExpression': throw new Error('Obfuscation refused: tagged template literals are not supported. Refactor to regular function calls before obfuscating.');
+      case 'TaggedTemplateExpression': this.compileTaggedTemplate(node); break;
       case 'ClassDeclaration': this.compileClass(node, true); break;
       case 'ClassExpression': this.compileClass(node, false); break;
       case 'ImportDeclaration': this.warnings.push(`Import from '${node.source.value}' compiled as no-op`); break;
@@ -615,9 +656,16 @@ export class BytecodeCompiler {
     const className = node.id ? node.id.name : '__class_' + (this.funcCounter++);
     let constructorFunc: any = null; const methods: any[] = [];
     const privateFields: any[] = [];
+    const gettersSetters: any[] = [];
     for (const member of node.body.body) {
       if (member.kind === 'constructor') constructorFunc = member.value;
-      else if (member.type === 'MethodDefinition') methods.push(member);
+      else if (member.type === 'MethodDefinition') {
+        if (member.kind === 'get' || member.kind === 'set') {
+          gettersSetters.push(member);
+        } else {
+          methods.push(member);
+        }
+      }
       else if (member.type === 'PropertyDefinition' && member.key.type === 'PrivateIdentifier') {
         privateFields.push(member);
       }
@@ -688,14 +736,46 @@ export class BytecodeCompiler {
     for (const method of methods) {
       this.emitPoly('DUP');
       if (method.static) {
-        this.compileFunction(method.value);
-        this.emitPoly('SET_PROP', this.addConstant(method.key.name));
+        if (method.computed) {
+          this.compileFunction(method.value);
+          this.compileNode(method.key);
+          this.emitPoly('SET_PROP_OBJ_COMPUTED');
+        } else {
+          this.compileFunction(method.value);
+          this.emitPoly('SET_PROP', this.addConstant(method.key.name));
+        }
       } else {
         this.emitPoly('GET_PROP', this.addConstant('prototype'));
-        this.compileFunction(method.value);
-        this.emitPoly('SET_PROP', this.addConstant(method.key.name));
+        if (method.computed) {
+          this.compileFunction(method.value);
+          this.compileNode(method.key);
+          this.emitPoly('SET_PROP_OBJ_COMPUTED');
+        } else {
+          this.compileFunction(method.value);
+          this.emitPoly('SET_PROP', this.addConstant(method.key.name));
+        }
       }
       this.emitPoly('POP');
+    }
+    for (var _gsi = 0; _gsi < gettersSetters.length; _gsi++) {
+      var _gs = gettersSetters[_gsi];
+      var _gsKey2 = _gs.key.name || _gs.key.value;
+      if (_gs.static) {
+        this.emitPoly('DUP');
+        this.emitPoly('PUSH_CONST', this.addConstant(_gsKey2));
+        this.compileFunction(_gs.value);
+        this.emitPoly('PUSH_CONST', this.addConstant(_gs.kind === 'get' ? 'get' : 'set'));
+        this.emitPoly('CALL_METHOD', 3, this.addConstant('__defineGS__'));
+        this.emitPoly('POP');
+      } else {
+        this.emitPoly('DUP');
+        this.emitPoly('GET_PROP', this.addConstant('prototype'));
+        this.emitPoly('PUSH_CONST', this.addConstant(_gsKey2));
+        this.compileFunction(_gs.value);
+        this.emitPoly('PUSH_CONST', this.addConstant(_gs.kind === 'get' ? 'get' : 'set'));
+        this.emitPoly('CALL_METHOD', 3, this.addConstant('__defineGS__'));
+        this.emitPoly('POP');
+      }
     }
     if (isDeclaration) this.emitPoly('DECLARE_VAR', this.addConstant(className));
   }

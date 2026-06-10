@@ -39,9 +39,7 @@ Classes with inheritance, closures, destructuring, rest/spread, default paramete
 | Deep recursion (>1000 frames) | JS engine stack limit — fixed in Pro via trampoline dispatch |
 | `import`/`export` | Compiled as no-op — obfuscator processes single files |
 | `extends Error`/`Array` | Native constructors use internal slots unreachable through VM wrappers |
-| `Function.name` / `.length` | Obfuscated — wrappers are anonymous for protection |
-| Class getters/setters | Not yet supported in OSS — available in Pro |
-| Computed class methods | Not yet supported in OSS — available in Pro |
+| `Function.name` / `.length` | Preserved on wrappers — mangled names and param counts carry through |
 
 Everything else — classes, inheritance, closures, destructuring, rest/spread, default parameters, template literals, try/catch/finally, switch, loops, Map/Set, Symbol, JSON, regex, nullish coalescing, optional chaining, async/await — is fully supported and tested.
 

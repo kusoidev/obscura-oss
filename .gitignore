@@ -38,6 +38,9 @@ test_output*.js
 # Temp directories
 tmp_test_output/
 
+# Project memory (local only)
+KUSINI.md
+
 # IDE / OS
 .vscode/
 .idea/
