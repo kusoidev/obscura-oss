@@ -281,9 +281,14 @@ export class BytecodeCompiler {
       case 'CallExpression': this.compileCall(node); break;
       case 'NewExpression': this.compileNode(node.callee); for (const arg of node.arguments) this.compileNode(arg); this.emitPoly('NEW', node.arguments.length); break;
       case 'MemberExpression':
-        this.compileNode(node.object);
-        if (node.computed) { this.compileNode(node.property); this.emitPoly(node.optional ? 'OPTIONAL_CHAIN' : 'GET_INDEX'); }
-        else this.emitPoly(node.optional ? 'OPTIONAL_CHAIN' : 'GET_PROP', this.addConstant(this.getPropName(node.property)));
+        if (node.object.type === 'Super' && !node.computed) {
+          this.emitPoly('THIS');
+          this.emitPoly('SUPER_METHOD', 0, this.addConstant(this.getPropName(node.property)));
+        } else {
+          this.compileNode(node.object);
+          if (node.computed) { this.compileNode(node.property); this.emitPoly(node.optional ? 'OPTIONAL_CHAIN' : 'GET_INDEX'); }
+          else this.emitPoly(node.optional ? 'OPTIONAL_CHAIN' : 'GET_PROP', this.addConstant(this.getPropName(node.property)));
+        }
         break;
       case 'ChainExpression': this.compileNode(node.expression); break;
       case 'ObjectExpression':
