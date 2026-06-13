@@ -33,13 +33,16 @@ Classes with inheritance, closures, destructuring, rest/spread, default paramete
 
 | Feature | Why |
 |---------|-----|
-| Generators (`function*`, `async*`) | State machine compilation not implemented — obfuscation refused |
+| Generators (`function*`, `async function*`) | State machine compilation not implemented — obfuscation refused |
 | Tagged template literals | Tag function receives raw strings at runtime, can't be pre-compiled |
 | `eval` / `new Function` at runtime | Generated code executes in VM scope, not intended scope |
 | Deep recursion (>1000 frames) | JS engine stack limit — fixed in Pro via trampoline dispatch |
 | `import`/`export` | Compiled as no-op — obfuscator processes single files |
 | `extends Error`/`Array` | Native constructors use internal slots unreachable through VM wrappers |
-| `Function.name` / `.length` | Preserved on wrappers — mangled names and param counts carry through |
+| `"use strict"` mode | VM runs in sloppy mode — `this` is coerced to global, not `undefined` |
+| `let`/`const` temporal dead zone | Accessing before declaration returns `undefined` instead of throwing ReferenceError |
+| `const` reassignment | Not enforced — `const` is treated identically to `let` in the VM |
+| Spread in mixed call args | `fn(a, ...b, c)` not supported — use `fn(...[a, ...b, c])` instead |
 
 Everything else — classes, inheritance, closures, destructuring, rest/spread, default parameters, template literals, try/catch/finally, switch, loops, Map/Set, Symbol, JSON, regex, nullish coalescing, optional chaining, async/await — is fully supported and tested.
 

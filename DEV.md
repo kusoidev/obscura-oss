@@ -118,6 +118,11 @@ tests/
   production-stress.js   — 45-case integration test
   edge-cases.js          — Edge case regression tests
   wrapper-stress.js      — 20-case function wrapper fidelity test
+  class-features.js      — Class getter/setter, inheritance, computed methods
+  final-20.js            — 20-case function wrapper stress
+  es5-es6-stress.js      — 68-case let/const, arrow fn, destructure, template literal
+  deep-stress.js         — 50-case async/await, nested closures, class hierarchy, coercion
+  audit-stress.js        — 115-case audit targeting VM gaps (optional chaining, spread, delete, switch)
 ```
 
 ---
@@ -162,3 +167,7 @@ The seed, XOR keys, opcode variant choices, and constant encoding offsets are ra
 - Deep recursion (>1000 frames) hits the JS engine stack limit
 - `import`/`export` are compiled as no-ops (single-file processing)
 - `extends Error`/`Array` — native constructors use internal slots unreachable through VM wrappers
+- `"use strict"` mode — VM runs in sloppy mode, `this` is coerced to global instead of `undefined` in strict functions
+- `let`/`const` temporal dead zone — accessing before declaration returns `undefined` instead of throwing ReferenceError
+- `const` reassignment — not enforced, `const` is compiled identically to `let`
+- Spread arguments in mixed calls (`fn(a, ...b, c)`) — not supported, use `fn(...[a, ...b, c])` instead
