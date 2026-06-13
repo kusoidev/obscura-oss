@@ -287,9 +287,32 @@ export class BytecodeCompiler {
         if (node.object.type === 'Super' && !node.computed) {
           this.emitPoly('THIS');
           this.emitPoly('SUPER_METHOD', 0, this.addConstant(this.getPropName(node.property)));
+        } else if (node.optional && node.computed) {
+          // computed optional chaining: obj?.[key] desugars to null check + get_index
+          var _optObj = '__oo_' + (this.funcCounter++);
+          var _optKey = '__ok_' + (this.funcCounter++);
+          var _optSkip = '__opt_skip_' + this.currentAddr();
+          var _optEnd = '__opt_end_' + this.currentAddr();
+          this.compileNode(node.object);
+          this.emitPoly('DECLARE_VAR', this.addConstant(_optObj));
+          this.compileNode(node.property);
+          this.emitPoly('DECLARE_VAR', this.addConstant(_optKey));
+          this.emitPoly('PUSH_VAR', this.addConstant(_optObj));
+          this.emitPoly('DUP');
+          this.emitPoly('PUSH_CONST', this.addConstant(null));
+          this.emitPoly('EQ');
+          this.emitJumpPoly('JMP_IF_FALSE', _optSkip);
+          this.emitPoly('POP');
+          this.emitPoly('POP');
+          this.emitPoly('PUSH_CONST', this.addConstant(undefined));
+          this.emitJumpPoly('JMP', _optEnd);
+          this.setLabel(_optSkip);
+          this.emitPoly('PUSH_VAR', this.addConstant(_optKey));
+          this.emitPoly('GET_INDEX');
+          this.setLabel(_optEnd);
         } else {
           this.compileNode(node.object);
-          if (node.computed) { this.compileNode(node.property); this.emitPoly(node.optional ? 'OPTIONAL_CHAIN' : 'GET_INDEX'); }
+          if (node.computed) { this.compileNode(node.property); this.emitPoly('GET_INDEX'); }
           else this.emitPoly(node.optional ? 'OPTIONAL_CHAIN' : 'GET_PROP', this.addConstant(this.getPropName(node.property)));
         }
         break;
@@ -542,7 +565,29 @@ export class BytecodeCompiler {
         else { for (const arg of node.arguments) this.compileNode(arg); this.emitPoly('CALL_METHOD', node.arguments.length, this.addConstant(this.getPropName(node.callee.property))); }
       }
     } else if (node.callee.type === 'Super') { if (this.currentSuperClass !== null) this.emitPoly('PUSH_VAR', this.currentSuperClass); for (const arg of node.arguments) this.compileNode(arg); this.emitPoly('SUPER_CALL', node.arguments.length); }
-    else { this.compileNode(node.callee); for (const arg of node.arguments) this.compileNode(arg); this.emitPoly('CALL', node.arguments.length); }
+    else {
+      // check for spread arguments: desugar fn(...spread) to fn.apply(null, spread)
+      var _hasSpread = false;
+      for (var _sai = 0; _sai < node.arguments.length; _sai++) {
+        if (node.arguments[_sai].type === 'SpreadElement') { _hasSpread = true; break; }
+      }
+      if (_hasSpread && node.arguments.length === 1 && node.arguments[0].type === 'SpreadElement') {
+        // fn(...spread) -> fn.apply(null, spread)
+        this.compileNode(node.callee);
+        this.emitPoly('PUSH_CONST', this.addConstant(null));
+        this.compileNode(node.arguments[0].argument);
+        this.emitPoly('CALL_METHOD', 2, this.addConstant('apply'));
+      } else if (_hasSpread) {
+        this.warnings.push('mixed spread + non-spread call arguments not yet supported');
+        this.compileNode(node.callee);
+        for (const arg of node.arguments) this.compileNode(arg);
+        this.emitPoly('CALL', node.arguments.length);
+      } else {
+        this.compileNode(node.callee);
+        for (const arg of node.arguments) this.compileNode(arg);
+        this.emitPoly('CALL', node.arguments.length);
+      }
+    }
   }
 
   private emitBinaryOp(op: string): void {

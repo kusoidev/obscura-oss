@@ -246,7 +246,7 @@
         st.c.set(p.slice(3), rest); break;
       } else { st.c.set(p, i < a.length ? a[i] : undefined); }
     }
-    st.c.set("arguments", a);
+    if (!fd.isArrow) st.c.set("arguments", a);
     if (fd._this !== undefined) { st.t = fd._this; }
     else if (fd.isArrow) { st.t = ct || {{VM_VAR_GS}}; }
     else { st.t = cl || {{VM_VAR_GS}}; }
