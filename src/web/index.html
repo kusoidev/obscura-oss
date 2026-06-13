@@ -563,9 +563,9 @@
 
   function analyzeSource(source) {
     var warnings = [];
-    if (/\b(let|const)\s*\[[^\]]*\]\s*=/.test(source)) warnings.push('Destructuring declarations detected. May produce incorrect values.');
+    if (/\b(let|const)\s*\[[^\]]*\]\s*=/.test(source)) warnings.push('Destructuring declarations detected. Default values may fail for array patterns.');
     if (/\[[^,\]]*,\s*,[^\]]*\]/.test(source)) warnings.push('Sparse arrays detected. "in" operator may return incorrect results for holes.');
-    if (/\b(let|const)\s+\w+\s*=/.test(source)) warnings.push('let/const compiled as var. No block scoping.');
+    if (/\b(let|const)\s+\w+\s*=/.test(source)) warnings.push('let/const: temporal dead zone not enforced. Accessing before declaration returns undefined.');
     return warnings;
   }
 
@@ -594,7 +594,7 @@
       document.getElementById('outputSize').textContent = (data.stats.outputSize / 1024).toFixed(1) + ' KB';
       document.getElementById('statBytes').textContent = data.stats.bytecodeSize;
       document.getElementById('statConstants').textContent = data.stats.constantCount;
-      document.getElementById('statWarnings').textContent = data.stats.warnings.length;
+      document.getElementById('statWarnings').textContent = data.stats.warnings.length + (data.stats.warnings.length > 0 ? ' (check console)' : ''); console.log('Compiler warnings:', data.stats.warnings);
       document.getElementById('statExcluded').textContent = data.stats.excludedFunctions.length > 0 ? data.stats.excludedFunctions.join(', ') : 'none';
       var downloadBar = document.getElementById('downloadBar');
       downloadBar.classList.add('visible');

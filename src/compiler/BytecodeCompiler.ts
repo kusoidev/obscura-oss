@@ -18,6 +18,7 @@ export class BytecodeCompiler {
   private fakeCallCounter = 0;
   private segmentCounter = 0;
   private opsSinceLastSegment = 0;
+  private _tdzWarningEmitted = false;
   private static readonly SEGMENT_INTERVAL = 40 + Math.floor(Math.random() * 30);
   public _currentBlockBody: any[] | null = null;
   public _inBlockScope = false;
@@ -224,7 +225,10 @@ export class BytecodeCompiler {
       case 'EmptyStatement': break;
       case 'DebuggerStatement': this.emitPoly('DEBUG_BREAK'); break;
       case 'VariableDeclaration':
-        
+        if ((node.kind === 'let' || node.kind === 'const') && !this._tdzWarningEmitted) {
+          this._tdzWarningEmitted = true;
+          this.warnings.push('let/const does not enforce temporal dead zone: accessing before declaration returns undefined instead of throwing ReferenceError');
+        }
         for (const decl of node.declarations) {
           if (node.kind === 'var' && !decl.init) continue;
           if (node.kind === 'var' && decl.init && this._inBlockScope && decl.id.type === 'Identifier') {
@@ -408,6 +412,13 @@ export class BytecodeCompiler {
           if (_el.left && _el.left.type === 'Identifier') {
             this.emitPoly('DECLARE_VAR', this.addConstant(_el.left.name));
           }
+        } else if (_el.type === 'ObjectPattern') {
+          var _arrNestedTmp = '__dest_obj_' + (this.funcCounter++);
+          this.emitPoly('PUSH_VAR', this.addConstant(_tmpArr));
+          this.emitPoly('PUSH_CONST', this.addConstant(_ei));
+          this.emitPoly('GET_INDEX');
+          this.emitPoly('DECLARE_VAR', this.addConstant(_arrNestedTmp));
+          this.compileObjectPatternDestructure(_el, _arrNestedTmp);
         } else if (_el.type === 'RestElement' && _el.argument.type === 'Identifier') {
           this.emitPoly('PUSH_VAR', this.addConstant(_tmpArr));
           this.emitPoly('PUSH_CONST', this.addConstant(_ei));
