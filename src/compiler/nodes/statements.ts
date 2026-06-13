@@ -45,9 +45,41 @@ export function compileFor(compiler: BytecodeCompiler, node: any): void {
   const endLabel = 'for_end_' + compiler.currentAddr();
   compiler.loopStack.push({ breakLabel: endLabel, continueLabel: updateLabel });
   if (node.init) { compiler.compileNode(node.init); if (node.init.type !== 'VariableDeclaration') compiler.emitPoly('POP'); }
+
+  // collect let/const variables declared in init for per-iteration scoping
+  var perIterVars: string[] = [];
+  if (node.init && node.init.type === 'VariableDeclaration' && (node.init.kind === 'let' || node.init.kind === 'const')) {
+    for (var di = 0; di < node.init.declarations.length; di++) {
+      var decl = node.init.declarations[di];
+      if (decl.id && decl.id.type === 'Identifier') perIterVars.push(decl.id.name);
+    }
+  }
+
   compiler.setLabel(testLabel);
   if (node.test) { compiler.compileNode(node.test); compiler.emitJumpPoly('JMP_IF_FALSE', endLabel); }
+
+  // wrap body in per-iteration scope for let/const
+  if (perIterVars.length > 0) {
+    compiler.emitPoly('ENTER_SCOPE');
+    // redeclare loop variables in the new scope with values from outer scope
+    for (var pvi = 0; pvi < perIterVars.length; pvi++) {
+      compiler.emitPoly('PUSH_VAR', compiler.addConstant(perIterVars[pvi]));
+      compiler.emitPoly('DECLARE_VAR', compiler.addConstant(perIterVars[pvi]));
+    }
+  }
+
   compiler.compileNode(node.body);
+
+  if (perIterVars.length > 0) {
+    // copy values back to outer scope before exit
+    for (var pvi = 0; pvi < perIterVars.length; pvi++) {
+      compiler.emitPoly('PUSH_VAR', compiler.addConstant(perIterVars[pvi]));
+      compiler.emitPoly('STORE_VAR', compiler.addConstant(perIterVars[pvi]));
+      compiler.emitPoly('POP');
+    }
+    compiler.emitPoly('EXIT_SCOPE');
+  }
+
   compiler.setLabel(updateLabel);
   if (node.update) { compiler.compileNode(node.update); compiler.emitPoly('POP'); }
   compiler.emitJumpPoly('JMP', testLabel);
@@ -99,6 +131,10 @@ export function compileForOf(compiler: BytecodeCompiler, node: any): void {
   const tmpIter = '__iter_' + (compiler.funcCounter++);
   const tmpResult = '__res_' + (compiler.funcCounter++);
   compiler.emitPoly('DECLARE_VAR', compiler.addConstant(tmpIter));
+
+  // check if let/const for per-iteration scoping
+  var hasLetConst = node.left.type === 'VariableDeclaration' && (node.left.kind === 'let' || node.left.kind === 'const');
+
   compiler.setLabel(iterLabel);
   compiler.emitPoly('PUSH_VAR', compiler.addConstant(tmpIter));
   compiler.emitPoly('CALL_METHOD', 0, compiler.addConstant('next'));
@@ -109,6 +145,11 @@ export function compileForOf(compiler: BytecodeCompiler, node: any): void {
   compiler.emitJumpPoly('JMP_IF_FALSE', endLabel);
   compiler.emitPoly('PUSH_VAR', compiler.addConstant(tmpResult));
   compiler.emitPoly('GET_PROP', compiler.addConstant('value'));
+
+  if (hasLetConst) {
+    compiler.emitPoly('ENTER_SCOPE');
+  }
+
   if (node.left.type === 'VariableDeclaration') {
     for (const decl of node.left.declarations) {
       if (decl.id.type === 'Identifier') {
@@ -130,6 +171,11 @@ export function compileForOf(compiler: BytecodeCompiler, node: any): void {
     compiler.emitPoly('STORE_VAR', compiler.addConstant(node.left.name));
   }
   compiler.compileNode(node.body);
+
+  if (hasLetConst) {
+    compiler.emitPoly('EXIT_SCOPE');
+  }
+
   compiler.emitJumpPoly('JMP', iterLabel);
   compiler.setLabel(endLabel);
   compiler.loopStack.pop();
@@ -155,6 +201,10 @@ export function compileForIn(compiler: BytecodeCompiler, node: any): void {
   compiler.emitPoly('DECLARE_VAR', compiler.addConstant(tmpLen));
   compiler.emitPoly('PUSH_CONST', compiler.addConstant(0));
   compiler.emitPoly('DECLARE_VAR', compiler.addConstant(tmpIdx));
+
+  // check if let/const for per-iteration scoping
+  var hasLetConst = node.left.type === 'VariableDeclaration' && (node.left.kind === 'let' || node.left.kind === 'const');
+
   compiler.setLabel(iterLabel);
   compiler.emitPoly('PUSH_VAR', compiler.addConstant(tmpIdx));
   compiler.emitPoly('PUSH_VAR', compiler.addConstant(tmpLen));
@@ -163,12 +213,22 @@ export function compileForIn(compiler: BytecodeCompiler, node: any): void {
   compiler.emitPoly('PUSH_VAR', compiler.addConstant(tmpKeys));
   compiler.emitPoly('PUSH_VAR', compiler.addConstant(tmpIdx));
   compiler.emitPoly('GET_INDEX');
+
+  if (hasLetConst) {
+    compiler.emitPoly('ENTER_SCOPE');
+  }
+
   if (node.left.type === 'VariableDeclaration') {
     for (const decl of node.left.declarations) compiler.emitPoly('DECLARE_VAR', compiler.addConstant(decl.id.name));
   } else if (node.left.type === 'Identifier') {
     compiler.emitPoly('STORE_VAR', compiler.addConstant(node.left.name));
   }
   compiler.compileNode(node.body);
+
+  if (hasLetConst) {
+    compiler.emitPoly('EXIT_SCOPE');
+  }
+
   compiler.emitPoly('PUSH_VAR', compiler.addConstant(tmpIdx));
   compiler.emitPoly('PUSH_CONST', compiler.addConstant(1));
   compiler.emitPoly('ADD');

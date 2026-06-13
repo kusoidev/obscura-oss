@@ -78,7 +78,6 @@ export class BytecodeCompiler {
   private maybeInjectSegmentSwitch(): void {}
   private maybeInjectFakeOps(): void {}
 
-
   private compileObjectPatternDestructure(pattern: any, sourceVar: string): void {
     for (var _pi = 0; _pi < pattern.properties.length; _pi++) {
       var _prop = pattern.properties[_pi];
@@ -225,7 +224,7 @@ export class BytecodeCompiler {
       case 'EmptyStatement': break;
       case 'DebuggerStatement': this.emitPoly('DEBUG_BREAK'); break;
       case 'VariableDeclaration':
-        if (node.kind === 'let' || node.kind === 'const') this.warnings.push(node.kind + ' is compiled as var (no block scoping)');
+        
         for (const decl of node.declarations) {
           if (node.kind === 'var' && !decl.init) continue;
           if (node.kind === 'var' && decl.init && this._inBlockScope && decl.id.type === 'Identifier') {
@@ -398,6 +397,7 @@ export class BytecodeCompiler {
           this.emitPoly('PUSH_VAR', this.addConstant(_tmpArr));
           this.emitPoly('PUSH_CONST', this.addConstant(_ei));
           this.emitPoly('GET_INDEX');
+          this.emitPoly('DUP');
           this.emitPoly('PUSH_CONST', this.addConstant(undefined));
           this.emitPoly('STRICT_EQ');
           var _skipLabel = '__def_skip_' + this.currentAddr();
@@ -431,6 +431,12 @@ export class BytecodeCompiler {
           this.emitPoly('PUSH_VAR', this.addConstant(_tmpObj));
           this.emitPoly('GET_PROP', this.addConstant(_keyName));
           this.emitPoly('DECLARE_VAR', this.addConstant(_prop.value.name));
+        } else if (_prop.value.type === 'ObjectPattern') {
+          var _nestedTmp2 = '__dest_obj_' + (this.funcCounter++);
+          this.emitPoly('PUSH_VAR', this.addConstant(_tmpObj));
+          this.emitPoly('GET_PROP', this.addConstant(_keyName));
+          this.emitPoly('DECLARE_VAR', this.addConstant(_nestedTmp2));
+          this.compileObjectPatternDestructure(_prop.value, _nestedTmp2);
         } else if (_prop.value.type === 'AssignmentPattern') {
           this.emitPoly('PUSH_VAR', this.addConstant(_tmpObj));
           this.emitPoly('GET_PROP', this.addConstant(_keyName));
@@ -573,6 +579,12 @@ export class BytecodeCompiler {
                 this.emitPoly('DUP');
                 this.emitPoly('GET_PROP', this.addConstant(_kn));
                 this.emitPoly('DECLARE_VAR', this.addConstant(_prop.value.name));
+              } else if (_prop.value && _prop.value.type === 'ObjectPattern') {
+                var _nestedObjTmp = '__dest_obj_' + (this.funcCounter++);
+                this.emitPoly('DUP');
+                this.emitPoly('GET_PROP', this.addConstant(_kn));
+                this.emitPoly('DECLARE_VAR', this.addConstant(_nestedObjTmp));
+                this.compileObjectPatternDestructure(_prop.value, _nestedObjTmp);
               }
             }
             this.emitPoly('POP');
