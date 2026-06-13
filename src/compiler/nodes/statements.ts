@@ -46,7 +46,6 @@ export function compileFor(compiler: BytecodeCompiler, node: any): void {
   compiler.loopStack.push({ breakLabel: endLabel, continueLabel: updateLabel });
   if (node.init) { compiler.compileNode(node.init); if (node.init.type !== 'VariableDeclaration') compiler.emitPoly('POP'); }
 
-  // collect let/const variables declared in init for per-iteration scoping
   var perIterVars: string[] = [];
   if (node.init && node.init.type === 'VariableDeclaration' && (node.init.kind === 'let' || node.init.kind === 'const')) {
     for (var di = 0; di < node.init.declarations.length; di++) {
@@ -58,10 +57,8 @@ export function compileFor(compiler: BytecodeCompiler, node: any): void {
   compiler.setLabel(testLabel);
   if (node.test) { compiler.compileNode(node.test); compiler.emitJumpPoly('JMP_IF_FALSE', endLabel); }
 
-  // wrap body in per-iteration scope for let/const
   if (perIterVars.length > 0) {
     compiler.emitPoly('ENTER_SCOPE');
-    // redeclare loop variables in the new scope with values from outer scope
     for (var pvi = 0; pvi < perIterVars.length; pvi++) {
       compiler.emitPoly('PUSH_VAR', compiler.addConstant(perIterVars[pvi]));
       compiler.emitPoly('DECLARE_VAR', compiler.addConstant(perIterVars[pvi]));
@@ -71,7 +68,6 @@ export function compileFor(compiler: BytecodeCompiler, node: any): void {
   compiler.compileNode(node.body);
 
   if (perIterVars.length > 0) {
-    // copy values back to outer scope before exit
     for (var pvi = 0; pvi < perIterVars.length; pvi++) {
       compiler.emitPoly('PUSH_VAR', compiler.addConstant(perIterVars[pvi]));
       compiler.emitPoly('STORE_VAR', compiler.addConstant(perIterVars[pvi]));
@@ -132,7 +128,6 @@ export function compileForOf(compiler: BytecodeCompiler, node: any): void {
   const tmpResult = '__res_' + (compiler.funcCounter++);
   compiler.emitPoly('DECLARE_VAR', compiler.addConstant(tmpIter));
 
-  // check if let/const for per-iteration scoping
   var hasLetConst = node.left.type === 'VariableDeclaration' && (node.left.kind === 'let' || node.left.kind === 'const');
 
   compiler.setLabel(iterLabel);
@@ -202,7 +197,6 @@ export function compileForIn(compiler: BytecodeCompiler, node: any): void {
   compiler.emitPoly('PUSH_CONST', compiler.addConstant(0));
   compiler.emitPoly('DECLARE_VAR', compiler.addConstant(tmpIdx));
 
-  // check if let/const for per-iteration scoping
   var hasLetConst = node.left.type === 'VariableDeclaration' && (node.left.kind === 'let' || node.left.kind === 'const');
 
   compiler.setLabel(iterLabel);
