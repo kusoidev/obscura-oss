@@ -19,6 +19,7 @@ export class BytecodeCompiler {
   private segmentCounter = 0;
   private opsSinceLastSegment = 0;
   private _tdzWarningEmitted = false;
+  private _strictWarningEmitted = false;
   private static readonly SEGMENT_INTERVAL = 40 + Math.floor(Math.random() * 30);
   public _currentBlockBody: any[] | null = null;
   public _inBlockScope = false;
@@ -221,7 +222,19 @@ export class BytecodeCompiler {
         this._inBlockScope = _prevBlockScope;
         this._currentBlockBody = _prevBlock;
         break;
-      case 'ExpressionStatement': this.compileNode(node.expression); if (this._currentBlockBody) { var _idx = this._currentBlockBody.indexOf(node); if (_idx === -1 || _idx !== this._currentBlockBody.length - 1) this.emitPoly('POP'); } else this.emitPoly('POP'); break;
+      case 'ExpressionStatement':
+        // detect "use strict" directive
+        if (!this._strictWarningEmitted && node.expression && node.expression.type === 'Literal' && node.expression.value === 'use strict') {
+          this._strictWarningEmitted = true;
+          this.warnings.push('"use strict" directive detected but VM runs in sloppy mode: this coercion will differ from strict mode behavior');
+        }
+        if (node.expression && node.expression.type === 'Literal' && node.expression.value === 'use strict') {
+          // skip emitting bytecode for the directive itself
+        } else {
+          this.compileNode(node.expression);
+          if (this._currentBlockBody) { var _idx = this._currentBlockBody.indexOf(node); if (_idx === -1 || _idx !== this._currentBlockBody.length - 1) this.emitPoly('POP'); } else this.emitPoly('POP');
+        }
+        break;
       case 'EmptyStatement': break;
       case 'DebuggerStatement': this.emitPoly('DEBUG_BREAK'); break;
       case 'VariableDeclaration':

@@ -566,6 +566,7 @@
     if (/\b(let|const)\s*\[[^\]]*\]\s*=/.test(source)) warnings.push('Destructuring declarations detected. Default values may fail for array patterns.');
     if (/\[[^,\]]*,\s*,[^\]]*\]/.test(source)) warnings.push('Sparse arrays detected. "in" operator may return incorrect results for holes.');
     if (/\b(let|const)\s+\w+\s*=/.test(source)) warnings.push('let/const: temporal dead zone not enforced. Accessing before declaration returns undefined.');
+    if (/["']use strict["']/.test(source)) warnings.push('"use strict" detected but VM runs in sloppy mode. this will be coerced to global, not undefined.');
     return warnings;
   }
 
