@@ -562,7 +562,7 @@ export class BytecodeCompiler {
       } else {
         this.emitPoly('SET_PROP', this.addConstant(this.getPropName(node.argument.property)));
       }
-      this.emitPoly('POP');
+      if (isPost) this.emitPoly('POP');
     }
   }
 
@@ -793,6 +793,7 @@ export class BytecodeCompiler {
       var funcStart = this.currentAddr();
       if (hasSuper) {
         this.currentSuperClass = this.addConstant(node.superClass.name);
+        this.emitPoly('PUSH_VAR', this.currentSuperClass);
         var maxArgs = 10;
         for (var ai = 0; ai < maxArgs; ai++) {
           this.emitPoly('PUSH_VAR', this.addConstant('arguments'));
