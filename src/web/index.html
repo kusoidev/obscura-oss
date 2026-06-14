@@ -626,39 +626,49 @@
     outputBox.classList.remove('hidden'); runResult.textContent = ''; runStatus.textContent = 'running...'; runStatus.className = '';
     try {
       var logs = [];
-      var sandbox = {
-        console: {
-          log: function() { logs.push(Array.prototype.map.call(arguments, function(a) { return typeof a === 'object' && a !== null ? JSON.stringify(a) : String(a); }).join(' ')); },
-          error: function() { logs.push('[error] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); },
-          warn: function() { logs.push('[warn] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); }
-        },
-        setTimeout: function(fn, ms) { return setTimeout(fn, Math.min(ms || 0, 5000)); },
-        setInterval: function() { return 0; },
-        Promise: Promise
+      var _origConsole = window.console;
+      var _origST = window.setTimeout;
+      var _origCT = window.clearTimeout;
+
+      // the VM caches the console object reference at init time.
+      // patching console.log is not enough — we must replace window.console entirely.
+      window.console = {
+        log: function() { logs.push(Array.prototype.map.call(arguments, function(a) { return typeof a === 'object' && a !== null ? JSON.stringify(a) : String(a); }).join(' ')); },
+        error: function() { logs.push('[error] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); },
+        warn: function() { logs.push('[warn] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); }
       };
-      sandbox.global = sandbox;
-      sandbox.globalThis = sandbox;
-      var fn = new Function('console', 'setTimeout', 'setInterval', 'Promise', 'global', 'globalThis', lastResult.code);
-      var result = fn(sandbox.console, sandbox.setTimeout, sandbox.setInterval, sandbox.Promise, sandbox, sandbox);
+      window.setTimeout = function(fn, ms) { return _origST(fn, Math.min(ms || 0, 5000)); };
+      window.clearTimeout = _origCT;
+
+      function cleanup() {
+        window.console = _origConsole;
+        window.setTimeout = _origST;
+        window.clearTimeout = _origCT;
+      }
+
+      var result = eval(lastResult.code);
+
       if (result && typeof result.then === 'function') {
         result.then(function() {
           runResult.textContent = logs.join('\n') || '(no output)';
           runStatus.textContent = 'done'; runStatus.className = '';
+          cleanup();
         }).catch(function(e) {
-          runResult.textContent = e.message || String(e);
+          runResult.textContent = (e && e.message) || String(e);
           runStatus.textContent = 'error'; runStatus.className = 'error';
+          cleanup();
         });
       } else {
+        cleanup();
         setTimeout(function() {
           runResult.textContent = logs.join('\n') || '(no output)';
           runStatus.textContent = 'done'; runStatus.className = '';
         }, 100);
       }
     } catch (e) {
-      runResult.textContent = e.message; runStatus.textContent = 'error'; runStatus.className = 'error';
+      runResult.textContent = e.message || String(e); runStatus.textContent = 'error'; runStatus.className = 'error';
     }
   }
-
   function clearAll() {
     document.getElementById('source').value = '';
     document.getElementById('output').textContent = '';
