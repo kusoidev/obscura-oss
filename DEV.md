@@ -115,14 +115,12 @@ src/
   web/
     index.html           — Web UI
 tests/
-  production-stress.js   — 45-case integration test
-  edge-cases.js          — Edge case regression tests
-  wrapper-stress.js      — 20-case function wrapper fidelity test
-  class-features.js      — Class getter/setter, inheritance, computed methods
-  final-20.js            — 20-case function wrapper stress
-  es5-es6-stress.js      — 68-case let/const, arrow fn, destructure, template literal
-  deep-stress.js         — 50-case async/await, nested closures, class hierarchy, coercion
-  audit-stress.js        — 115-case audit targeting VM gaps (optional chaining, spread, delete, switch)
+  production-stress.js   — 45-case integration test (models, repos, async APIs, recursion, closures)
+  edge-cases.js          — 96-case regression suite (private fields, inheritance, getters/setters,
+                           computed methods, optional chaining, nullish coalescing, BigInt,
+                           Symbols, Map/Set, destructuring, spread, inc/dec on properties,
+                           instanceof, compound assignment, async/await, Promise.all,
+                           for-of/in, switch, default params, template literals, IIFE, closures)
 ```
 
 ---

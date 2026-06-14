@@ -27,7 +27,7 @@ At runtime, the VM decrypts the bytecode, walks the instruction stream, and exec
 
 ## What works
 
-Classes with inheritance, closures, destructuring, rest/spread, default parameters, template literals, try/catch/finally, switch, loops, Map/Set, Symbol, JSON, regex — all tested.
+Classes with inheritance, private fields, closures, destructuring, rest/spread, default parameters, template literals, try/catch/finally, switch, loops, Map/Set, Symbol, JSON, regex — all tested.
 
 **What doesn't:**
 
