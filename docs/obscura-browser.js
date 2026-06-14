@@ -4,6 +4,9 @@ var Obscura = (() => {
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __commonJS = (cb, mod) => function __require() {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  };
   var __export = (target, all) => {
     for (var name in all)
       __defProp(target, name, { get: all[name], enumerable: true });
@@ -17,6 +20,314 @@ var Obscura = (() => {
     return to;
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+  // src/runtime/dispatch-gen.js
+  var require_dispatch_gen = __commonJS({
+    "src/runtime/dispatch-gen.js"(exports, module) {
+      "use strict";
+      module.exports = function(G, R, L, S, SU, W, F, XE, gS, SP, SK, groupNames) {
+        var lines = [];
+        var body;
+        for (var gi = 0; gi < groupNames.length; gi++) {
+          var gn = groupNames[gi];
+          switch (gn) {
+            case "HALT":
+              body = "return st.s.length?st.s[st.s.length-1]:undefined;";
+              break;
+            case "PUSH_CONST":
+              body = "st.s.push(" + G + "(" + R + "(st)));";
+              break;
+            case "PUSH_VAR":
+              body = "st.s.push(" + L + "(st," + G + "(" + R + "(st))));";
+              break;
+            case "STORE_VAR":
+              body = SU + "(st," + G + "(" + R + "(st)),st.s[st.s.length-1]);";
+              break;
+            case "DECLARE_VAR":
+              body = "{var _dn=" + G + "(" + R + '(st));var _dv=st.s.pop();if(typeof __PF__!=="undefined"&&__PF__.hasOwnProperty(_dn))_dv=__PF__[_dn];st.c.set(_dn,_dv);}';
+              break;
+            case "POP":
+              body = "st.s.pop();";
+              break;
+            case "DUP":
+              body = "st.s.push(st.s[st.s.length-1]);";
+              break;
+            case "ADD":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l+r);}";
+              break;
+            case "SUB":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l-r);}";
+              break;
+            case "MUL":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l*r);}";
+              break;
+            case "DIV":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l/r);}";
+              break;
+            case "MOD":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l%r);}";
+              break;
+            case "EXP":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(Math.pow(l,r));}";
+              break;
+            case "EQ":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l==r);}";
+              break;
+            case "NEQ":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l!=r);}";
+              break;
+            case "STRICT_EQ":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l===r);}";
+              break;
+            case "STRICT_NEQ":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l!==r);}";
+              break;
+            case "LT":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l<r);}";
+              break;
+            case "LTE":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l<=r);}";
+              break;
+            case "GT":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l>r);}";
+              break;
+            case "GTE":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l>=r);}";
+              break;
+            case "AND":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l&&r);}";
+              break;
+            case "OR":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l||r);}";
+              break;
+            case "NOT":
+              body = "st.s.push(!st.s.pop());";
+              break;
+            case "NULLISH":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l!=null?l:r);}";
+              break;
+            case "BIT_AND":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l&r);}";
+              break;
+            case "BIT_OR":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l|r);}";
+              break;
+            case "BIT_XOR":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l^r);}";
+              break;
+            case "BIT_NOT":
+              body = "st.s.push(~st.s.pop());";
+              break;
+            case "LSHIFT":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l<<r);}";
+              break;
+            case "RSHIFT":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l>>r);}";
+              break;
+            case "URSHIFT":
+              body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l>>>r);}";
+              break;
+            case "JMP":
+              body = "st.i=" + R + "(st);";
+              break;
+            case "JMP_IF_FALSE":
+              body = "if(!st.s.pop())st.i=" + R + "(st);else st.i+=4;";
+              break;
+            case "JMP_IF_TRUE":
+              body = "if(st.s.pop())st.i=" + R + "(st);else st.i+=4;";
+              break;
+            case "CALL":
+              body = "{var ac=" + R + "(st),a=[];for(var i=0;i<ac;i++)a.unshift(st.s.pop());var f=st.s.pop();if(f&&f._v){var __fd__=f._o||f;var __rp__=" + F + '(__fd__,a,f._s||st.c,f._ct,undefined);st.s.push(__fd__.async?__rp__:await __rp__);}else if(typeof f==="function"){st.s.push(f.apply(st.t,a));}else{throw new TypeError("Cannot call "+typeof f);}}';
+              break;
+            case "CALL_METHOD":
+              body = "{var ac=" + R + "(st),mn=" + G + "(" + R + "(st)),a=[];for(var i=0;i<ac;i++)a.unshift(st.s.pop());var o=st.s.pop();if(o===null||o===undefined){st.s.push(undefined);}else{var m=o[mn];if(m&&m._v){var __fd2__=m._o||m;var __rp2__=" + F + '(__fd2__,a,m._s||st.c,m._ct,o);st.s.push(__fd2__.async?__rp2__:await __rp2__);}else if(typeof m==="function"){st.s.push(m.apply(o,a));}else{st.s.push(undefined);}}}';
+              break;
+            case "NEW":
+              body = "{var ac=" + R + '(st),a=[];for(var i=0;i<ac;i++)a.unshift(st.s.pop());var ctor=st.s.pop();if(ctor&&ctor._v){var inst=Object.create(ctor.prototype);var r=ctor.apply(inst,a);if(r&&typeof r.then==="function")await r;if(r&&typeof r==="object"&&r!==inst)st.s.push(r);else st.s.push(inst);}else if(typeof ctor==="function"){try{var inst=Reflect.construct(ctor,a);st.s.push(inst);}catch(e){var inst=Object.create(ctor.prototype);var r=ctor.apply(inst,a);st.s.push(r&&typeof r==="object"?r:inst);}}else{st.s.push({});}}';
+              break;
+            case "RETURN":
+              body = "{var rv=st.s.length?st.s.pop():undefined;if(st.y.length>0){var ti=st.y[st.y.length-1];if(ti.finallyAddr>=0){st.y.pop();st._retv=rv;st.i=ti.finallyAddr;break;}}while(st.l.length>0){var fr=st.l.pop();st.c=fr.c;st.t=fr.t;}return rv;}";
+              break;
+            case "TYPEOF":
+              body = '{var v=st.s.pop();st.s.push(v&&v._v?"function":typeof v);}';
+              break;
+            case "INSTANCEOF":
+              body = '{var c=st.s.pop(),o=st.s.pop();if(c&&c._v){var _proto=c.prototype;if(_proto){var _check=o;while(_check){if(_check===_proto){st.s.push(true);break;}_check=Object.getPrototypeOf(_check);}if(!_check)st.s.push(false);}}else if(typeof c==="function"){st.s.push(o instanceof c);}else{st.s.push(false);}}';
+              break;
+            case "IN":
+              body = "{var o=st.s.pop(),p=st.s.pop();st.s.push(p in o);}";
+              break;
+            case "DELETE":
+              body = "{var p=st.s.pop(),o=st.s.pop();st.s.push(o!=null?delete o[p]:true);}";
+              break;
+            case "GET_PROP":
+              body = "{var pn=" + G + "(" + R + "(st)),o=st.s.pop();st.s.push(o!=null?o[pn]:undefined);}";
+              break;
+            case "SET_PROP":
+              body = "{var pn=" + G + "(" + R + "(st)),v=st.s.pop(),o=st.s.pop();if(o!=null)o[pn]=v;st.s.push(v);}";
+              break;
+            case "GET_INDEX":
+              body = "{var idx=st.s.pop(),o=st.s.pop();st.s.push(o!=null?o[idx]:undefined);}";
+              break;
+            case "SET_INDEX":
+              body = "{var v=st.s.pop(),idx=st.s.pop(),o=st.s.pop();if(o!=null)o[idx]=v;st.s.push(v);}";
+              break;
+            case "NEW_OBJ":
+              body = "st.s.push({});";
+              break;
+            case "NEW_ARR":
+              body = "{var len=" + R + "(st),a=[];for(var i=0;i<len;i++)a.unshift(st.s.pop());st.s.push(a);}";
+              break;
+            case "PUSH_FUNC":
+              body = "{var fd=" + G + "(" + R + "(st)),vf=" + W + "(fd,st);st.s.push(vf);}";
+              break;
+            case "OPTIONAL_CHAIN":
+              body = "{var _ocpn=" + G + "(" + R + "(st));if(st.s[st.s.length-1]==null){st.s.pop();st.s.push(undefined);}else{var _oco=st.s.pop();st.s.push(_oco!=null?_oco[_ocpn]:undefined);}}";
+              break;
+            case "ENTER_SCOPE":
+              body = "{st.l.push({i:st.i,c:st.c,t:st.t,s:st.s.slice()});var ns=new Map();ns.__p=st.c;st.c=ns;}";
+              break;
+            case "EXIT_SCOPE":
+              body = "{if(st.l.length>0){var fr=st.l.pop();st.c=fr.c;st.t=fr.t;}}";
+              break;
+            case "TRY":
+              body = "{var inf=" + G + "(" + R + "(st));st.y.push({catchAddr:inf.catchAddr,finallyAddr:inf.finallyAddr});}";
+              break;
+            case "THROW":
+              body = "{var err=st.s.pop();if(st.y.length===0)throw err;var ti=st.y[st.y.length-1];if(ti.catchAddr>=0){st.y.pop();st.s.push(err);st.i=ti.catchAddr;}else if(ti.finallyAddr>=0){st._throwing=true;st.s.push(err);st.i=ti.finallyAddr;}else{st.y.pop();throw err;}}";
+              break;
+            case "CATCH":
+              body = "{}";
+              break;
+            case "FINALLY":
+              body = "{}";
+              break;
+            case "END_TRY":
+              body = "{if(st.y.length>0){var _tr=st.y.pop();if(st._throwing){st._throwing=false;var _err=st.s.pop();throw _err;}}if(st._retv!==undefined){var _rv=st._retv;st._retv=undefined;while(st.l.length>0){var fr=st.l.pop();st.c=fr.c;st.t=fr.t;}return _rv;}}";
+              break;
+            case "INC_PRE":
+              body = "{var n=" + G + "(" + R + "(st)),cur=" + L + "(st,n)||0;" + SU + "(st,n,cur+1);st.s.push(cur+1);}";
+              break;
+            case "INC_POST":
+              body = "{var n=" + G + "(" + R + "(st)),cur=" + L + "(st,n)||0;st.s.push(cur);" + SU + "(st,n,cur+1);}";
+              break;
+            case "DEC_PRE":
+              body = "{var n=" + G + "(" + R + "(st)),cur=" + L + "(st,n)||0;" + SU + "(st,n,cur-1);st.s.push(cur-1);}";
+              break;
+            case "DEC_POST":
+              body = "{var n=" + G + "(" + R + "(st)),cur=" + L + "(st,n)||0;st.s.push(cur);" + SU + "(st,n,cur-1);}";
+              break;
+            case "NEG":
+              body = "st.s.push(-st.s.pop());";
+              break;
+            case "POS":
+              body = "st.s.push(+st.s.pop());";
+              break;
+            case "SET_PROP_OBJ":
+              body = "{var pn=" + G + "(" + R + "(st)),v=st.s.pop(),o=st.s[st.s.length-1];if(o!=null)o[pn]=v;}";
+              break;
+            case "SET_PROP_OBJ_COMPUTED":
+              body = "{var k=st.s.pop(),v=st.s.pop(),o=st.s[st.s.length-1];if(o!=null)o[k]=v;}";
+              break;
+            case "TERNARY":
+              body = "{var alt=st.s.pop(),cons=st.s.pop(),tst=st.s.pop();st.s.push(tst?cons:alt);}";
+              break;
+            case "THIS":
+              body = "st.s.push(st.t);";
+              break;
+            case "SUPER":
+              body = "st.s.push(st.t);";
+              break;
+            case "REST_ARGS":
+              body = '{var a=st.s.pop();if(Array.isArray(a)){for(var i=0;i<a.length;i++)st.s.push(a[i]);}else if(a&&typeof a[Symbol.iterator]==="function"){var it=a[Symbol.iterator]();var nx;while(!(nx=it.next()).done)st.s.push(nx.value);}}';
+              break;
+            case "ARRAY_PUSH":
+              body = "{var _av=st.s.pop();var _aa=st.s[st.s.length-1];if(Array.isArray(_aa))_aa.push(_av);}";
+              break;
+            case "ARRAY_SPREAD":
+              body = '{var _sp=st.s.pop();var _arr=st.s[st.s.length-1];if(_sp&&typeof _sp[Symbol.iterator]==="function"){var _it=_sp[Symbol.iterator]();var _nx;while(!(_nx=_it.next()).done)_arr.push(_nx.value);}else if(Array.isArray(_sp)){for(var _si=0;_si<_sp.length;_si++)_arr.push(_sp[_si]);}}';
+              break;
+            case "OBJ_SPREAD":
+              body = '{var src=st.s.pop(),dst=st.s[st.s.length-1];if(src&&typeof src==="object"){for(var k in src){if(Object.prototype.hasOwnProperty.call(src,k))dst[k]=src[k];}}}';
+              break;
+            case "FOR_OF_ITER":
+              body = "{var itb=st.s.pop(),it=itb&&itb[Symbol.iterator]?itb[Symbol.iterator]():null;st.s.push(it||{next:function(){return{done:true};}});}";
+              break;
+            case "FOR_IN_ITER":
+              body = "{var o=st.s.pop(),ks=[];if(o!=null){for(var k in o)ks.push(k);}st.s.push(ks);}";
+              break;
+            case "AWAIT":
+              body = '{var p=st.s.pop();if(p&&typeof p.then==="function"){st.s.push(await p);}else{st.s.push(p);}}';
+              break;
+            case "YIELD":
+              body = "st.s.push(st.s.pop());";
+              break;
+            case "CLASS_BODY":
+              body = '{var sc=st.s.pop(),cls=st.s[st.s.length-1];if(sc&&cls&&typeof sc==="function"){var pr=Object.create(sc.prototype);pr.constructor=cls;cls.prototype=pr;cls.__s=sc;}}';
+              break;
+            case "SUPER_CALL":
+              body = "{var ac=" + R + "(st),a=[];for(var i=0;i<ac;i++)a.unshift(st.s.pop());var sC=st.s.pop();if(sC&&sC._v){var __sc_fd__=sC._o||sC;var __sc_r__=" + F + '(__sc_fd__,a,sC._s||st.c,undefined,st.t);if(__sc_fd__.async)await __sc_r__;st.s.push(st.t);}else if(typeof sC==="function"){var r=sC.apply(st.t,a);if(r&&typeof r.then==="function"){st.s.push(await r);}else{st.s.push(r);}}else{st.s.push(st.t);}}';
+              break;
+            case "SUPER_METHOD":
+              body = "{var ac=" + R + "(st),mn=" + G + "(" + R + '(st)),a=[];for(var i=0;i<ac;i++)a.unshift(st.s.pop());var sl=st.s.pop();var sp=sl&&sl.constructor&&sl.constructor.__s&&sl.constructor.__s.prototype;if(sp){var _d=Object.getOwnPropertyDescriptor(sp,mn);if(_d&&typeof _d.get==="function"){st.s.push(_d.get.call(sl));}else{var m=sp[mn];if(typeof m==="function"){var r=m.apply(sl,a);if(r&&typeof r.then==="function"){st.s.push(await r);}else{st.s.push(r);}}else{st.s.push(undefined);}}}else{st.s.push(undefined);}}';
+              break;
+            case "IMPORT":
+              body = "{}";
+              break;
+            case "EXPORT":
+              body = "{}";
+              break;
+            case "DEAD_CODE":
+              body = R + "(st);";
+              break;
+            case "ANTI_DEBUG":
+              body = '{var start=Date.now(),j=0;for(var i=0;i<500000;i++)j+=i&1;if(Date.now()-start>50){__B__=new Uint8Array(0);__DC__=[];throw new Error("Anti-debug");}}';
+              break;
+            case "DEBUG_BREAK":
+              body = "if(__D__)debugger;";
+              break;
+            case "SEGMENT_SWITCH":
+              body = "{var segId=__B__[st.i++]%__NUM_SEG__;if(segId!==__OT_CUR__&&segId<__NUM_SEG__){__OT_CUR__=segId;__OT__=__OT_ALL__[segId];}}";
+              break;
+            case "FAKE_ADD":
+              body = "{var fv=" + R + "(st);st.fakeStack.push(fv);}";
+              break;
+            case "FAKE_CALL":
+              body = "{" + R + "(st);st.fakeStack.push(Math.random());}";
+              break;
+            case "DESTRUCTURE_ARR":
+              body = "{var _dc=" + R + "(st);var _arr=st.s.pop();for(var _di=_dc-1;_di>=0;_di--){var _dn=" + SK + "(st);var _dv=_arr!=null?_arr[_di]:undefined;st.c.set(_dn,_dv);}}";
+              break;
+            case "DESTRUCTURE_OBJ":
+              body = "{var _dc=" + R + "(st);var _obj=st.s.pop();for(var _di=_dc-1;_di>=0;_di--){var _kn=" + SK + "(st);var _dn=" + SK + "(st);var _dv=_obj!=null?_obj[_kn]:undefined;st.c.set(_dn,_dv);}}";
+              break;
+            case "RETURN_TRAMP":
+              body = "{var rv=st.s.length?st.s.pop():undefined;if(st.y.length>0){var ti=st.y[st.y.length-1];if(ti.finallyAddr>=0){st._retv=rv;st.i=ti.finallyAddr;break;}}while(st.l.length>0){var fl=st.l.pop();st.c=fl.c;st.t=fl.t;}if(st._trampStack&&st._trampStack.length>0){var fr=st._trampStack.pop();st.c=fr.c;st.t=fr.t;st.i=fr.i;st.s.push(rv);}else{return rv;}}";
+              break;
+            case "CALL_TRAMP":
+              body = "{var ac=" + R + '(st),a=[];for(var i=0;i<ac;i++)a.unshift(st.s.pop());var f=st.s.pop();if(f&&f._v){var __fd__=f._o||f;var params=__fd__.params||[];var ns=new Map();ns.__p=f._s||st.c;st._trampStack.push({c:st.c,t:st.t,i:st.i});for(var j=0;j<params.length;j++){var pn=params[j];if(pn.charAt(0)==="."&&pn.charAt(1)==="."&&pn.charAt(2)==="."){var rest=[];for(var k=j;k<a.length;k++)rest.push(a[k]);ns.set(pn.slice(3),rest);break;}else{ns.set(pn,j<a.length?a[j]:undefined);}}if(!__fd__.isArrow)ns.set("arguments",a);st.c=ns;st.t=__fd__._this!==undefined?__fd__._this:(__fd__.isArrow?(f._ct||st.t):st.t);st.i=__fd__.addr;}else if(typeof f==="function"){st.s.push(f.apply(st.t,a));}else{throw new TypeError("Cannot call "+typeof f);}}';
+              break;
+            case "CALL_METHOD_TRAMP":
+              body = "{var ac=" + R + "(st),mn=" + G + "(" + R + '(st)),a=[];for(var i=0;i<ac;i++)a.unshift(st.s.pop());var o=st.s.pop();if(o===null||o===undefined){st.s.push(undefined);}else{var m=o[mn];if(m&&m._v){var __fd__=m._o||m;var params=__fd__.params||[];var ns=new Map();ns.__p=m._s||st.c;st._trampStack.push({c:st.c,t:st.t,i:st.i});for(var j=0;j<params.length;j++){var pn=params[j];if(pn.charAt(0)==="."&&pn.charAt(1)==="."&&pn.charAt(2)==="."){var rest=[];for(var k=j;k<a.length;k++)rest.push(a[k]);ns.set(pn.slice(3),rest);break;}else{ns.set(pn,j<a.length?a[j]:undefined);}}if(!__fd__.isArrow)ns.set("arguments",a);st.c=ns;st.t=__fd__._this!==undefined?__fd__._this:(__fd__.isArrow?(m._ct||st.t):o);st.i=__fd__.addr;}else if(typeof m==="function"){st.s.push(m.apply(o,a));}else{st.s.push(undefined);}}}';
+              break;
+            case "GET_PRIVATE":
+              body = "{var pn=" + G + "(" + R + "(st)),o=st.s.pop();var priv=__PRIVATE_MAP__.get(o);st.s.push(priv?priv[pn]:undefined);}";
+              break;
+            case "SET_PRIVATE":
+              body = "{var pn=" + G + "(" + R + "(st)),v=st.s.pop(),o=st.s.pop();var priv=__PRIVATE_MAP__.get(o);if(!priv){priv={};__PRIVATE_MAP__.set(o,priv);}priv[pn]=v;st.s.push(v);}";
+              break;
+            default:
+              body = "{}";
+              break;
+          }
+          lines.push("        case " + gi + ":" + body + " break;");
+        }
+        var asyncBody = lines.join("\n");
+        var syncBody = asyncBody.replace(/await /g, "");
+        return { async: asyncBody, sync: syncBody };
+      };
+    }
+  });
 
   // src/browser.ts
   var browser_exports = {};
@@ -7204,12 +7515,34 @@ var Obscura = (() => {
       compiler.compileNode(node.init);
       if (node.init.type !== "VariableDeclaration") compiler.emitPoly("POP");
     }
+    var perIterVars = [];
+    if (node.init && node.init.type === "VariableDeclaration" && (node.init.kind === "let" || node.init.kind === "const")) {
+      for (var di = 0; di < node.init.declarations.length; di++) {
+        var decl = node.init.declarations[di];
+        if (decl.id && decl.id.type === "Identifier") perIterVars.push(decl.id.name);
+      }
+    }
     compiler.setLabel(testLabel);
     if (node.test) {
       compiler.compileNode(node.test);
       compiler.emitJumpPoly("JMP_IF_FALSE", endLabel);
     }
+    if (perIterVars.length > 0) {
+      compiler.emitPoly("ENTER_SCOPE");
+      for (var pvi = 0; pvi < perIterVars.length; pvi++) {
+        compiler.emitPoly("PUSH_VAR", compiler.addConstant(perIterVars[pvi]));
+        compiler.emitPoly("DECLARE_VAR", compiler.addConstant(perIterVars[pvi]));
+      }
+    }
     compiler.compileNode(node.body);
+    if (perIterVars.length > 0) {
+      for (var pvi = 0; pvi < perIterVars.length; pvi++) {
+        compiler.emitPoly("PUSH_VAR", compiler.addConstant(perIterVars[pvi]));
+        compiler.emitPoly("STORE_VAR", compiler.addConstant(perIterVars[pvi]));
+        compiler.emitPoly("POP");
+      }
+      compiler.emitPoly("EXIT_SCOPE");
+    }
     compiler.setLabel(updateLabel);
     if (node.update) {
       compiler.compileNode(node.update);
@@ -7253,6 +7586,7 @@ var Obscura = (() => {
     const tmpIter = "__iter_" + compiler.funcCounter++;
     const tmpResult = "__res_" + compiler.funcCounter++;
     compiler.emitPoly("DECLARE_VAR", compiler.addConstant(tmpIter));
+    var hasLetConst = node.left.type === "VariableDeclaration" && (node.left.kind === "let" || node.left.kind === "const");
     compiler.setLabel(iterLabel);
     compiler.emitPoly("PUSH_VAR", compiler.addConstant(tmpIter));
     compiler.emitPoly("CALL_METHOD", 0, compiler.addConstant("next"));
@@ -7263,12 +7597,33 @@ var Obscura = (() => {
     compiler.emitJumpPoly("JMP_IF_FALSE", endLabel);
     compiler.emitPoly("PUSH_VAR", compiler.addConstant(tmpResult));
     compiler.emitPoly("GET_PROP", compiler.addConstant("value"));
+    if (hasLetConst) {
+      compiler.emitPoly("ENTER_SCOPE");
+    }
     if (node.left.type === "VariableDeclaration") {
-      for (const decl of node.left.declarations) compiler.emitPoly("DECLARE_VAR", compiler.addConstant(decl.id.name));
+      for (const decl of node.left.declarations) {
+        if (decl.id.type === "Identifier") {
+          compiler.emitPoly("DECLARE_VAR", compiler.addConstant(decl.id.name));
+        } else if (decl.id.type === "ArrayPattern") {
+          var _fotmp = "__fodest_" + compiler.funcCounter++;
+          compiler.emitPoly("DECLARE_VAR", compiler.addConstant(_fotmp));
+          for (var _ei = 0; _ei < decl.id.elements.length; _ei++) {
+            var _el = decl.id.elements[_ei];
+            if (!_el) continue;
+            compiler.emitPoly("PUSH_VAR", compiler.addConstant(_fotmp));
+            compiler.emitPoly("PUSH_CONST", compiler.addConstant(_ei));
+            compiler.emitPoly("GET_INDEX");
+            compiler.emitPoly("DECLARE_VAR", compiler.addConstant(_el.name));
+          }
+        }
+      }
     } else if (node.left.type === "Identifier") {
       compiler.emitPoly("STORE_VAR", compiler.addConstant(node.left.name));
     }
     compiler.compileNode(node.body);
+    if (hasLetConst) {
+      compiler.emitPoly("EXIT_SCOPE");
+    }
     compiler.emitJumpPoly("JMP", iterLabel);
     compiler.setLabel(endLabel);
     compiler.loopStack.pop();
@@ -7288,6 +7643,7 @@ var Obscura = (() => {
     compiler.emitPoly("DECLARE_VAR", compiler.addConstant(tmpLen));
     compiler.emitPoly("PUSH_CONST", compiler.addConstant(0));
     compiler.emitPoly("DECLARE_VAR", compiler.addConstant(tmpIdx));
+    var hasLetConst = node.left.type === "VariableDeclaration" && (node.left.kind === "let" || node.left.kind === "const");
     compiler.setLabel(iterLabel);
     compiler.emitPoly("PUSH_VAR", compiler.addConstant(tmpIdx));
     compiler.emitPoly("PUSH_VAR", compiler.addConstant(tmpLen));
@@ -7296,12 +7652,18 @@ var Obscura = (() => {
     compiler.emitPoly("PUSH_VAR", compiler.addConstant(tmpKeys));
     compiler.emitPoly("PUSH_VAR", compiler.addConstant(tmpIdx));
     compiler.emitPoly("GET_INDEX");
+    if (hasLetConst) {
+      compiler.emitPoly("ENTER_SCOPE");
+    }
     if (node.left.type === "VariableDeclaration") {
       for (const decl of node.left.declarations) compiler.emitPoly("DECLARE_VAR", compiler.addConstant(decl.id.name));
     } else if (node.left.type === "Identifier") {
       compiler.emitPoly("STORE_VAR", compiler.addConstant(node.left.name));
     }
     compiler.compileNode(node.body);
+    if (hasLetConst) {
+      compiler.emitPoly("EXIT_SCOPE");
+    }
     compiler.emitPoly("PUSH_VAR", compiler.addConstant(tmpIdx));
     compiler.emitPoly("PUSH_CONST", compiler.addConstant(1));
     compiler.emitPoly("ADD");
@@ -7843,6 +8205,8 @@ var Obscura = (() => {
     fakeCallCounter = 0;
     segmentCounter = 0;
     opsSinceLastSegment = 0;
+    _tdzWarningEmitted = false;
+    _strictWarningEmitted = false;
     static SEGMENT_INTERVAL = 40 + Math.floor(Math.random() * 30);
     _currentBlockBody = null;
     _inBlockScope = false;
@@ -7898,6 +8262,36 @@ var Obscura = (() => {
     }
     maybeInjectFakeOps() {
     }
+    compileObjectPatternDestructure(pattern, sourceVar) {
+      for (var _pi = 0; _pi < pattern.properties.length; _pi++) {
+        var _prop = pattern.properties[_pi];
+        if (_prop.type === "RestElement") continue;
+        var _keyName = _prop.key.name || _prop.key.value;
+        if (_prop.value.type === "Identifier") {
+          this.emitPoly("PUSH_VAR", this.addConstant(sourceVar));
+          this.emitPoly("GET_PROP", this.addConstant(_keyName));
+          this.emitPoly("DECLARE_VAR", this.addConstant(_prop.value.name));
+        } else if (_prop.value.type === "AssignmentPattern") {
+          this.emitPoly("PUSH_VAR", this.addConstant(sourceVar));
+          this.emitPoly("GET_PROP", this.addConstant(_keyName));
+          this.emitPoly("DUP");
+          this.emitPoly("PUSH_CONST", this.addConstant(void 0));
+          this.emitPoly("STRICT_EQ");
+          var _oskipLabel = "__odef_skip_" + this.currentAddr();
+          this.emitJumpPoly("JMP_IF_FALSE", _oskipLabel);
+          this.emitPoly("POP");
+          this.compileNode(_prop.value.right);
+          this.setLabel(_oskipLabel);
+          if (_prop.value.left.type === "Identifier") {
+            this.emitPoly("DECLARE_VAR", this.addConstant(_prop.value.left.name));
+          } else if (_prop.value.left.type === "ObjectPattern") {
+            var _nestedTmp = "__dest_obj_" + this.funcCounter++;
+            this.emitPoly("DECLARE_VAR", this.addConstant(_nestedTmp));
+            this.compileObjectPatternDestructure(_prop.value.left, _nestedTmp);
+          }
+        }
+      }
+    }
     patch() {
       for (const { addr, label } of this.patches) {
         const target = this.labels.get(label);
@@ -7932,10 +8326,42 @@ var Obscura = (() => {
           this._currentBlockBody = node.body;
           this._hoistVarDeclarations(node.body);
           for (const stmt of node.body) {
-            if (stmt.type === "FunctionDeclaration" || stmt.type === "ClassDeclaration") this.compileNode(stmt);
+            if (stmt.type === "FunctionDeclaration") {
+              this.compileNode(stmt);
+            } else if (stmt.type === "ClassDeclaration") {
+              let hasComputed = false;
+              if (stmt.body && stmt.body.body) {
+                for (const member of stmt.body.body) {
+                  if (member.computed || member.key && member.computed) {
+                    hasComputed = true;
+                    break;
+                  }
+                }
+              }
+              if (!hasComputed) {
+                this.compileNode(stmt);
+              }
+            }
           }
           for (const stmt of node.body) {
-            if (stmt.type !== "FunctionDeclaration" && stmt.type !== "ClassDeclaration") this.compileNode(stmt);
+            if (stmt.type !== "FunctionDeclaration") {
+              if (stmt.type === "ClassDeclaration") {
+                let hasComputed = false;
+                if (stmt.body && stmt.body.body) {
+                  for (const member of stmt.body.body) {
+                    if (member.computed || member.key && member.computed) {
+                      hasComputed = true;
+                      break;
+                    }
+                  }
+                }
+                if (hasComputed) {
+                  this.compileNode(stmt);
+                }
+              } else if (stmt.type !== "ClassDeclaration") {
+                this.compileNode(stmt);
+              }
+            }
           }
           this._currentBlockBody = null;
           break;
@@ -7975,11 +8401,18 @@ var Obscura = (() => {
           this._currentBlockBody = _prevBlock;
           break;
         case "ExpressionStatement":
-          this.compileNode(node.expression);
-          if (this._currentBlockBody) {
-            var _idx = this._currentBlockBody.indexOf(node);
-            if (_idx === -1 || _idx !== this._currentBlockBody.length - 1) this.emitPoly("POP");
-          } else this.emitPoly("POP");
+          if (!this._strictWarningEmitted && node.expression && node.expression.type === "Literal" && node.expression.value === "use strict") {
+            this._strictWarningEmitted = true;
+            this.warnings.push('"use strict" directive detected but VM runs in sloppy mode: this coercion will differ from strict mode behavior');
+          }
+          if (node.expression && node.expression.type === "Literal" && node.expression.value === "use strict") {
+          } else {
+            this.compileNode(node.expression);
+            if (this._currentBlockBody) {
+              var _idx = this._currentBlockBody.indexOf(node);
+              if (_idx === -1 || _idx !== this._currentBlockBody.length - 1) this.emitPoly("POP");
+            } else this.emitPoly("POP");
+          }
           break;
         case "EmptyStatement":
           break;
@@ -7987,7 +8420,10 @@ var Obscura = (() => {
           this.emitPoly("DEBUG_BREAK");
           break;
         case "VariableDeclaration":
-          if (node.kind === "let" || node.kind === "const") this.warnings.push(node.kind + " is compiled as var (no block scoping)");
+          if ((node.kind === "let" || node.kind === "const") && !this._tdzWarningEmitted) {
+            this._tdzWarningEmitted = true;
+            this.warnings.push("let/const does not enforce temporal dead zone: accessing before declaration returns undefined instead of throwing ReferenceError");
+          }
           for (const decl of node.declarations) {
             if (node.kind === "var" && !decl.init) continue;
             if (node.kind === "var" && decl.init && this._inBlockScope && decl.id.type === "Identifier") {
@@ -8036,7 +8472,7 @@ var Obscura = (() => {
           if (node.operator === "delete" && node.argument.type === "MemberExpression") {
             this.compileNode(node.argument.object);
             if (node.argument.computed) this.compileNode(node.argument.property);
-            else this.emitPoly("PUSH_CONST", this.addConstant(node.argument.property.name));
+            else this.emitPoly("PUSH_CONST", this.addConstant(this.getPropName(node.argument.property)));
             this.emitPoly("DELETE");
           } else {
             this.compileNode(node.argument);
@@ -8068,11 +8504,38 @@ var Obscura = (() => {
           this.emitPoly("NEW", node.arguments.length);
           break;
         case "MemberExpression":
-          this.compileNode(node.object);
-          if (node.computed) {
+          if (node.object.type === "Super" && !node.computed) {
+            this.emitPoly("THIS");
+            this.emitPoly("SUPER_METHOD", 0, this.addConstant(this.getPropName(node.property)));
+          } else if (node.optional && node.computed) {
+            var _optObj = "__oo_" + this.funcCounter++;
+            var _optKey = "__ok_" + this.funcCounter++;
+            var _optSkip = "__opt_skip_" + this.currentAddr();
+            var _optEnd = "__opt_end_" + this.currentAddr();
+            this.compileNode(node.object);
+            this.emitPoly("DECLARE_VAR", this.addConstant(_optObj));
             this.compileNode(node.property);
-            this.emitPoly(node.optional ? "OPTIONAL_CHAIN" : "GET_INDEX");
-          } else this.emitPoly(node.optional ? "OPTIONAL_CHAIN" : "GET_PROP", this.addConstant(this.getPropName(node.property)));
+            this.emitPoly("DECLARE_VAR", this.addConstant(_optKey));
+            this.emitPoly("PUSH_VAR", this.addConstant(_optObj));
+            this.emitPoly("DUP");
+            this.emitPoly("PUSH_CONST", this.addConstant(null));
+            this.emitPoly("EQ");
+            this.emitJumpPoly("JMP_IF_FALSE", _optSkip);
+            this.emitPoly("POP");
+            this.emitPoly("POP");
+            this.emitPoly("PUSH_CONST", this.addConstant(void 0));
+            this.emitJumpPoly("JMP", _optEnd);
+            this.setLabel(_optSkip);
+            this.emitPoly("PUSH_VAR", this.addConstant(_optKey));
+            this.emitPoly("GET_INDEX");
+            this.setLabel(_optEnd);
+          } else {
+            this.compileNode(node.object);
+            if (node.computed) {
+              this.compileNode(node.property);
+              this.emitPoly("GET_INDEX");
+            } else this.emitPoly(node.optional ? "OPTIONAL_CHAIN" : "GET_PROP", this.addConstant(this.getPropName(node.property)));
+          }
           break;
         case "ChainExpression":
           this.compileNode(node.expression);
@@ -8196,7 +8659,8 @@ var Obscura = (() => {
           this.compileTemplate(node);
           break;
         case "TaggedTemplateExpression":
-          throw new Error("Obfuscation refused: tagged template literals are not supported. Refactor to regular function calls before obfuscating.");
+          this.compileTaggedTemplate(node);
+          break;
         case "ClassDeclaration":
           this.compileClass(node, true);
           break;
@@ -8266,6 +8730,7 @@ var Obscura = (() => {
             this.emitPoly("PUSH_VAR", this.addConstant(_tmpArr));
             this.emitPoly("PUSH_CONST", this.addConstant(_ei));
             this.emitPoly("GET_INDEX");
+            this.emitPoly("DUP");
             this.emitPoly("PUSH_CONST", this.addConstant(void 0));
             this.emitPoly("STRICT_EQ");
             var _skipLabel = "__def_skip_" + this.currentAddr();
@@ -8276,6 +8741,13 @@ var Obscura = (() => {
             if (_el.left && _el.left.type === "Identifier") {
               this.emitPoly("DECLARE_VAR", this.addConstant(_el.left.name));
             }
+          } else if (_el.type === "ObjectPattern") {
+            var _arrNestedTmp = "__dest_obj_" + this.funcCounter++;
+            this.emitPoly("PUSH_VAR", this.addConstant(_tmpArr));
+            this.emitPoly("PUSH_CONST", this.addConstant(_ei));
+            this.emitPoly("GET_INDEX");
+            this.emitPoly("DECLARE_VAR", this.addConstant(_arrNestedTmp));
+            this.compileObjectPatternDestructure(_el, _arrNestedTmp);
           } else if (_el.type === "RestElement" && _el.argument.type === "Identifier") {
             this.emitPoly("PUSH_VAR", this.addConstant(_tmpArr));
             this.emitPoly("PUSH_CONST", this.addConstant(_ei));
@@ -8299,7 +8771,13 @@ var Obscura = (() => {
             this.emitPoly("PUSH_VAR", this.addConstant(_tmpObj));
             this.emitPoly("GET_PROP", this.addConstant(_keyName));
             this.emitPoly("DECLARE_VAR", this.addConstant(_prop.value.name));
-          } else if (_prop.value.type === "AssignmentPattern" && _prop.value.left.type === "Identifier") {
+          } else if (_prop.value.type === "ObjectPattern") {
+            var _nestedTmp2 = "__dest_obj_" + this.funcCounter++;
+            this.emitPoly("PUSH_VAR", this.addConstant(_tmpObj));
+            this.emitPoly("GET_PROP", this.addConstant(_keyName));
+            this.emitPoly("DECLARE_VAR", this.addConstant(_nestedTmp2));
+            this.compileObjectPatternDestructure(_prop.value, _nestedTmp2);
+          } else if (_prop.value.type === "AssignmentPattern") {
             this.emitPoly("PUSH_VAR", this.addConstant(_tmpObj));
             this.emitPoly("GET_PROP", this.addConstant(_keyName));
             this.emitPoly("DUP");
@@ -8310,7 +8788,13 @@ var Obscura = (() => {
             this.emitPoly("POP");
             this.compileNode(_prop.value.right);
             this.setLabel(_oskipLabel);
-            this.emitPoly("DECLARE_VAR", this.addConstant(_prop.value.left.name));
+            if (_prop.value.left.type === "Identifier") {
+              this.emitPoly("DECLARE_VAR", this.addConstant(_prop.value.left.name));
+            } else if (_prop.value.left.type === "ObjectPattern") {
+              var _nestedTmp = "__dest_obj_" + this.funcCounter++;
+              this.emitPoly("DECLARE_VAR", this.addConstant(_nestedTmp));
+              this.compileObjectPatternDestructure(_prop.value.left, _nestedTmp);
+            }
           }
         }
       }
@@ -8339,7 +8823,7 @@ var Obscura = (() => {
         if (isComputed) {
           this.emitPoly("PUSH_VAR", this.addConstant(tmpIdx));
           this.emitPoly("GET_INDEX");
-        } else this.emitPoly("GET_PROP", this.addConstant(node.left.property.name));
+        } else this.emitPoly("GET_PROP", this.addConstant(this.getPropName(node.left.property)));
         this.compileNode(node.right);
         this.emitBinaryOp(op.slice(0, -1));
         this.emitPoly("DECLARE_VAR", this.addConstant(tmpVal));
@@ -8350,7 +8834,7 @@ var Obscura = (() => {
           this.emitPoly("SET_INDEX");
         } else {
           this.emitPoly("PUSH_VAR", this.addConstant(tmpVal));
-          this.emitPoly("SET_PROP", this.addConstant(node.left.property.name));
+          this.emitPoly("SET_PROP", this.addConstant(this.getPropName(node.left.property)));
         }
       }
     }
@@ -8426,9 +8910,28 @@ var Obscura = (() => {
         for (const arg of node.arguments) this.compileNode(arg);
         this.emitPoly("SUPER_CALL", node.arguments.length);
       } else {
-        this.compileNode(node.callee);
-        for (const arg of node.arguments) this.compileNode(arg);
-        this.emitPoly("CALL", node.arguments.length);
+        var _hasSpread = false;
+        for (var _sai = 0; _sai < node.arguments.length; _sai++) {
+          if (node.arguments[_sai].type === "SpreadElement") {
+            _hasSpread = true;
+            break;
+          }
+        }
+        if (_hasSpread && node.arguments.length === 1 && node.arguments[0].type === "SpreadElement") {
+          this.compileNode(node.callee);
+          this.emitPoly("PUSH_CONST", this.addConstant(null));
+          this.compileNode(node.arguments[0].argument);
+          this.emitPoly("CALL_METHOD", 2, this.addConstant("apply"));
+        } else if (_hasSpread) {
+          this.warnings.push("mixed spread + non-spread call arguments not yet supported");
+          this.compileNode(node.callee);
+          for (const arg of node.arguments) this.compileNode(arg);
+          this.emitPoly("CALL", node.arguments.length);
+        } else {
+          this.compileNode(node.callee);
+          for (const arg of node.arguments) this.compileNode(arg);
+          this.emitPoly("CALL", node.arguments.length);
+        }
       }
     }
     emitBinaryOp(op) {
@@ -8478,6 +8981,12 @@ var Obscura = (() => {
                   this.emitPoly("DUP");
                   this.emitPoly("GET_PROP", this.addConstant(_kn));
                   this.emitPoly("DECLARE_VAR", this.addConstant(_prop.value.name));
+                } else if (_prop.value && _prop.value.type === "ObjectPattern") {
+                  var _nestedObjTmp = "__dest_obj_" + this.funcCounter++;
+                  this.emitPoly("DUP");
+                  this.emitPoly("GET_PROP", this.addConstant(_kn));
+                  this.emitPoly("DECLARE_VAR", this.addConstant(_nestedObjTmp));
+                  this.compileObjectPatternDestructure(_prop.value, _nestedObjTmp);
                 }
               }
               this.emitPoly("POP");
@@ -8578,10 +9087,16 @@ var Obscura = (() => {
       let constructorFunc = null;
       const methods = [];
       const privateFields = [];
+      const gettersSetters = [];
       for (const member of node.body.body) {
         if (member.kind === "constructor") constructorFunc = member.value;
-        else if (member.type === "MethodDefinition") methods.push(member);
-        else if (member.type === "PropertyDefinition" && member.key.type === "PrivateIdentifier") {
+        else if (member.type === "MethodDefinition") {
+          if (member.kind === "get" || member.kind === "set") {
+            gettersSetters.push(member);
+          } else {
+            methods.push(member);
+          }
+        } else if (member.type === "PropertyDefinition" && member.key.type === "PrivateIdentifier") {
           privateFields.push(member);
         }
       }
@@ -8654,14 +9169,46 @@ var Obscura = (() => {
       for (const method of methods) {
         this.emitPoly("DUP");
         if (method.static) {
-          this.compileFunction(method.value);
-          this.emitPoly("SET_PROP", this.addConstant(method.key.name));
+          if (method.computed) {
+            this.compileFunction(method.value);
+            this.compileNode(method.key);
+            this.emitPoly("SET_PROP_OBJ_COMPUTED");
+          } else {
+            this.compileFunction(method.value);
+            this.emitPoly("SET_PROP", this.addConstant(method.key.name));
+          }
         } else {
           this.emitPoly("GET_PROP", this.addConstant("prototype"));
-          this.compileFunction(method.value);
-          this.emitPoly("SET_PROP", this.addConstant(method.key.name));
+          if (method.computed) {
+            this.compileFunction(method.value);
+            this.compileNode(method.key);
+            this.emitPoly("SET_PROP_OBJ_COMPUTED");
+          } else {
+            this.compileFunction(method.value);
+            this.emitPoly("SET_PROP", this.addConstant(method.key.name));
+          }
         }
         this.emitPoly("POP");
+      }
+      for (var _gsi = 0; _gsi < gettersSetters.length; _gsi++) {
+        var _gs = gettersSetters[_gsi];
+        var _gsKey2 = _gs.key.name || _gs.key.value;
+        if (_gs.static) {
+          this.emitPoly("DUP");
+          this.emitPoly("PUSH_CONST", this.addConstant(_gsKey2));
+          this.compileFunction(_gs.value);
+          this.emitPoly("PUSH_CONST", this.addConstant(_gs.kind === "get" ? "get" : "set"));
+          this.emitPoly("CALL_METHOD", 3, this.addConstant("__defineGS__"));
+          this.emitPoly("POP");
+        } else {
+          this.emitPoly("DUP");
+          this.emitPoly("GET_PROP", this.addConstant("prototype"));
+          this.emitPoly("PUSH_CONST", this.addConstant(_gsKey2));
+          this.compileFunction(_gs.value);
+          this.emitPoly("PUSH_CONST", this.addConstant(_gs.kind === "get" ? "get" : "set"));
+          this.emitPoly("CALL_METHOD", 3, this.addConstant("__defineGS__"));
+          this.emitPoly("POP");
+        }
       }
       if (isDeclaration) this.emitPoly("DECLARE_VAR", this.addConstant(className));
     }
@@ -8748,294 +9295,284 @@ var Obscura = (() => {
     }
     return variantToGroupIdx;
   }
-  var generateDispatch = function(G, R, L, S, SU, W, F, XE, gS, SP, SK, groupNames) {
-    var lines = [];
-    var body;
-    for (var gi = 0; gi < groupNames.length; gi++) {
-      var gn = groupNames[gi];
-      switch (gn) {
-        case "HALT":
-          body = "return st.s.length?st.s[st.s.length-1]:undefined;";
-          break;
-        case "PUSH_CONST":
-          body = "st.s.push(" + G + "(" + R + "(st)));";
-          break;
-        case "PUSH_VAR":
-          body = "st.s.push(" + L + "(st," + G + "(" + R + "(st))));";
-          break;
-        case "STORE_VAR":
-          body = SU + "(st," + G + "(" + R + "(st)),st.s[st.s.length-1]);";
-          break;
-        case "DECLARE_VAR":
-          body = "{var _dn=" + G + "(" + R + '(st));var _dv=st.s.pop();if(typeof __PF__!=="undefined"&&__PF__.hasOwnProperty(_dn))_dv=__PF__[_dn];st.c.set(_dn,_dv);}';
-          break;
-        case "POP":
-          body = "st.s.pop();";
-          break;
-        case "DUP":
-          body = "st.s.push(st.s[st.s.length-1]);";
-          break;
-        case "ADD":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l+r);}";
-          break;
-        case "SUB":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l-r);}";
-          break;
-        case "MUL":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l*r);}";
-          break;
-        case "DIV":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l/r);}";
-          break;
-        case "MOD":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l%r);}";
-          break;
-        case "EXP":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(Math.pow(l,r));}";
-          break;
-        case "EQ":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l==r);}";
-          break;
-        case "NEQ":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l!=r);}";
-          break;
-        case "STRICT_EQ":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l===r);}";
-          break;
-        case "STRICT_NEQ":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l!==r);}";
-          break;
-        case "LT":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l<r);}";
-          break;
-        case "LTE":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l<=r);}";
-          break;
-        case "GT":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l>r);}";
-          break;
-        case "GTE":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l>=r);}";
-          break;
-        case "AND":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l&&r);}";
-          break;
-        case "OR":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l||r);}";
-          break;
-        case "NOT":
-          body = "st.s.push(!st.s.pop());";
-          break;
-        case "NULLISH":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l!=null?l:r);}";
-          break;
-        case "BIT_AND":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l&r);}";
-          break;
-        case "BIT_OR":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l|r);}";
-          break;
-        case "BIT_XOR":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l^r);}";
-          break;
-        case "BIT_NOT":
-          body = "st.s.push(~st.s.pop());";
-          break;
-        case "LSHIFT":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l<<r);}";
-          break;
-        case "RSHIFT":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l>>r);}";
-          break;
-        case "URSHIFT":
-          body = "{var r=st.s.pop();var l=st.s.pop();st.s.push(l>>>r);}";
-          break;
-        case "JMP":
-          body = "st.i=" + R + "(st);";
-          break;
-        case "JMP_IF_FALSE":
-          body = "if(!st.s.pop())st.i=" + R + "(st);else st.i+=4;";
-          break;
-        case "JMP_IF_TRUE":
-          body = "if(st.s.pop())st.i=" + R + "(st);else st.i+=4;";
-          break;
-        case "CALL":
-          body = "{var ac=" + R + "(st),a=[];for(var i=0;i<ac;i++)a.unshift(st.s.pop());var f=st.s.pop();if(f&&f._v){var __fd__=f._o||f;var __rp__=" + F + '(__fd__,a,f._s||st.c,undefined,st.t);st.s.push(__fd__.async?__rp__:await __rp__);}else if(typeof f==="function"){st.s.push(f.apply(st.t,a));}else{throw new TypeError("Cannot call "+typeof f);}}';
-          break;
-        case "CALL_METHOD":
-          body = "{var ac=" + R + "(st),mn=" + G + "(" + R + "(st)),a=[];for(var i=0;i<ac;i++)a.unshift(st.s.pop());var o=st.s.pop();if(o===null||o===undefined){st.s.push(undefined);}else{var m=o[mn];if(m&&m._v){var __fd2__=m._o||m;var __rp2__=" + F + '(__fd2__,a,m._s||st.c,undefined,o);st.s.push(__fd2__.async?__rp2__:await __rp2__);}else if(typeof m==="function"){st.s.push(m.apply(o,a));}else{st.s.push(undefined);}}}';
-          break;
-        case "NEW":
-          body = "{var ac=" + R + '(st),a=[];for(var i=0;i<ac;i++)a.unshift(st.s.pop());var ctor=st.s.pop();if(ctor&&ctor._v){var inst=Object.create(ctor.prototype);var r=ctor.apply(inst,a);if(r&&typeof r.then==="function")await r;st.s.push(inst);}else if(typeof ctor==="function"){try{var inst=Reflect.construct(ctor,a);st.s.push(inst);}catch(e){var inst=Object.create(ctor.prototype);var r=ctor.apply(inst,a);st.s.push(r&&typeof r==="object"?r:inst);}}else{st.s.push({});}}';
-          break;
-        case "RETURN":
-          body = "{var rv=st.s.length?st.s.pop():undefined;if(st.y.length>0){var ti=st.y[st.y.length-1];if(ti.finallyAddr>=0){st._retv=rv;st.i=ti.finallyAddr;break;}}while(st.l.length>0){var fr=st.l.pop();st.c=fr.c;st.t=fr.t;}return rv;}";
-          break;
-        case "TYPEOF":
-          body = '{var v=st.s.pop();st.s.push(v&&v._v?"function":typeof v);}';
-          break;
-        case "INSTANCEOF":
-          body = '{var c=st.s.pop(),o=st.s.pop();if(c&&c._v){var _proto=c.prototype;if(_proto){var _check=o;while(_check){if(_check===_proto){st.s.push(true);break;}_check=Object.getPrototypeOf(_check);}if(!_check)st.s.push(false);}}else if(typeof c==="function"){st.s.push(o instanceof c);}else{st.s.push(false);}}';
-          break;
-        case "IN":
-          body = "{var o=st.s.pop(),p=st.s.pop();st.s.push(p in o);}";
-          break;
-        case "DELETE":
-          body = "{var p=st.s.pop(),o=st.s.pop();st.s.push(o!=null?delete o[p]:true);}";
-          break;
-        case "GET_PROP":
-          body = "{var pn=" + G + "(" + R + "(st)),o=st.s.pop();st.s.push(o!=null?o[pn]:undefined);}";
-          break;
-        case "SET_PROP":
-          body = "{var pn=" + G + "(" + R + "(st)),v=st.s.pop(),o=st.s.pop();if(o!=null)o[pn]=v;st.s.push(v);}";
-          break;
-        case "GET_INDEX":
-          body = "{var idx=st.s.pop(),o=st.s.pop();st.s.push(o!=null?o[idx]:undefined);}";
-          break;
-        case "SET_INDEX":
-          body = "{var v=st.s.pop(),idx=st.s.pop(),o=st.s.pop();if(o!=null)o[idx]=v;st.s.push(v);}";
-          break;
-        case "NEW_OBJ":
-          body = "st.s.push({});";
-          break;
-        case "NEW_ARR":
-          body = "{var len=" + R + "(st),a=[];for(var i=0;i<len;i++)a.unshift(st.s.pop());st.s.push(a);}";
-          break;
-        case "PUSH_FUNC":
-          body = "{var fd=" + G + "(" + R + "(st)),vf=" + W + "(fd,st);st.s.push(vf);}";
-          break;
-        case "OPTIONAL_CHAIN":
-          body = "{var _ocpn=" + G + "(" + R + "(st));if(st.s[st.s.length-1]==null){st.s.pop();st.s.push(undefined);}else{var _oco=st.s.pop();st.s.push(_oco!=null?_oco[_ocpn]:undefined);}}";
-          break;
-        case "ENTER_SCOPE":
-          body = "{st.l.push({i:st.i,c:st.c,t:st.t,s:st.s.slice()});var ns=new Map();ns.__p=st.c;st.c=ns;}";
-          break;
-        case "EXIT_SCOPE":
-          body = "{if(st.l.length>0){var fr=st.l.pop();st.c=fr.c;st.t=fr.t;}}";
-          break;
-        case "TRY":
-          body = "{var inf=" + G + "(" + R + "(st));st.y.push({catchAddr:inf.catchAddr,finallyAddr:inf.finallyAddr});}";
-          break;
-        case "THROW":
-          body = "{var err=st.s.pop();if(st.y.length===0)throw err;var ti=st.y[st.y.length-1];if(ti.catchAddr>=0){st.y.pop();st.s.push(err);st.i=ti.catchAddr;}else if(ti.finallyAddr>=0){st._throwing=true;st.s.push(err);st.i=ti.finallyAddr;}else{st.y.pop();throw err;}}";
-          break;
-        case "CATCH":
-          body = "{}";
-          break;
-        case "FINALLY":
-          body = "{}";
-          break;
-        case "END_TRY":
-          body = "{if(st.y.length>0){var _tr=st.y.pop();if(st._throwing){st._throwing=false;var _err=st.s.pop();throw _err;}}if(st._retv!==undefined){var _rv=st._retv;st._retv=undefined;while(st.l.length>0){var fr=st.l.pop();st.c=fr.c;st.t=fr.t;}return _rv;}}";
-          break;
-        case "INC_PRE":
-          body = "{var n=" + G + "(" + R + "(st)),cur=" + L + "(st,n)||0;" + SU + "(st,n,cur+1);st.s.push(cur+1);}";
-          break;
-        case "INC_POST":
-          body = "{var n=" + G + "(" + R + "(st)),cur=" + L + "(st,n)||0;st.s.push(cur);" + SU + "(st,n,cur+1);}";
-          break;
-        case "DEC_PRE":
-          body = "{var n=" + G + "(" + R + "(st)),cur=" + L + "(st,n)||0;" + SU + "(st,n,cur-1);st.s.push(cur-1);}";
-          break;
-        case "DEC_POST":
-          body = "{var n=" + G + "(" + R + "(st)),cur=" + L + "(st,n)||0;st.s.push(cur);" + SU + "(st,n,cur-1);}";
-          break;
-        case "NEG":
-          body = "st.s.push(-st.s.pop());";
-          break;
-        case "POS":
-          body = "st.s.push(+st.s.pop());";
-          break;
-        case "SET_PROP_OBJ":
-          body = "{var pn=" + G + "(" + R + "(st)),v=st.s.pop(),o=st.s[st.s.length-1];if(o!=null)o[pn]=v;}";
-          break;
-        case "SET_PROP_OBJ_COMPUTED":
-          body = "{var k=st.s.pop(),v=st.s.pop(),o=st.s[st.s.length-1];if(o!=null)o[k]=v;}";
-          break;
-        case "TERNARY":
-          body = "{var alt=st.s.pop(),cons=st.s.pop(),tst=st.s.pop();st.s.push(tst?cons:alt);}";
-          break;
-        case "THIS":
-          body = "st.s.push(st.t);";
-          break;
-        case "SUPER":
-          body = "st.s.push(st.t);";
-          break;
-        case "REST_ARGS":
-          body = '{var a=st.s.pop();if(Array.isArray(a)){for(var i=0;i<a.length;i++)st.s.push(a[i]);}else if(a&&typeof a[Symbol.iterator]==="function"){var it=a[Symbol.iterator]();var nx;while(!(nx=it.next()).done)st.s.push(nx.value);}}';
-          break;
-        case "ARRAY_PUSH":
-          body = "{var _av=st.s.pop();var _aa=st.s[st.s.length-1];if(Array.isArray(_aa))_aa.push(_av);}";
-          break;
-        case "ARRAY_SPREAD":
-          body = '{var _sp=st.s.pop();var _arr=st.s[st.s.length-1];if(_sp&&typeof _sp[Symbol.iterator]==="function"){var _it=_sp[Symbol.iterator]();var _nx;while(!(_nx=_it.next()).done)_arr.push(_nx.value);}else if(Array.isArray(_sp)){for(var _si=0;_si<_sp.length;_si++)_arr.push(_sp[_si]);}}';
-          break;
-        case "OBJ_SPREAD":
-          body = '{var src=st.s.pop(),dst=st.s[st.s.length-1];if(src&&typeof src==="object"){for(var k in src){if(src.hasOwnProperty(k))dst[k]=src[k];}}}';
-          break;
-        case "FOR_OF_ITER":
-          body = "{var itb=st.s.pop(),it=itb&&itb[Symbol.iterator]?itb[Symbol.iterator]():null;st.s.push(it||{next:function(){return{done:true};}});}";
-          break;
-        case "FOR_IN_ITER":
-          body = "{var o=st.s.pop(),ks=[];if(o!=null){for(var k in o)ks.push(k);}st.s.push(ks);}";
-          break;
-        case "AWAIT":
-          body = '{var p=st.s.pop();if(p&&typeof p.then==="function"){st.s.push(await p);}else{st.s.push(p);}}';
-          break;
-        case "YIELD":
-          body = "st.s.push(st.s.pop());";
-          break;
-        case "CLASS_BODY":
-          body = '{var sc=st.s.pop(),cls=st.s[st.s.length-1];if(sc&&cls&&typeof sc==="function"){var pr=Object.create(sc.prototype);pr.constructor=cls;cls.prototype=pr;cls.__s=sc;}}';
-          break;
-        case "SUPER_CALL":
-          body = "{var ac=" + R + "(st),a=[];for(var i=0;i<ac;i++)a.unshift(st.s.pop());var sC=st.s.pop();if(sC&&sC._v){var __sc_fd__=sC._o||sC;var __sc_r__=" + F + '(__sc_fd__,a,sC._s||st.c,undefined,st.t);if(__sc_fd__.async)await __sc_r__;st.s.push(st.t);}else if(typeof sC==="function"){var r=sC.apply(st.t,a);if(r&&typeof r.then==="function"){st.s.push(await r);}else{st.s.push(r);}}else{st.s.push(st.t);}}';
-          break;
-        case "SUPER_METHOD":
-          body = "{var ac=" + R + "(st),mn=" + G + "(" + R + '(st)),a=[];for(var i=0;i<ac;i++)a.unshift(st.s.pop());var sl=st.s.pop();var sp=sl&&sl.constructor&&sl.constructor.__s&&sl.constructor.__s.prototype;var m=sp?sp[mn]:undefined;if(typeof m==="function"){var r=m.apply(sl,a);if(r&&typeof r.then==="function"){st.s.push(await r);}else{st.s.push(r);}}else{st.s.push(undefined);}}';
-          break;
-        case "IMPORT":
-          body = "{}";
-          break;
-        case "EXPORT":
-          body = "{}";
-          break;
-        case "DEAD_CODE":
-          body = R + "(st);";
-          break;
-        case "ANTI_DEBUG":
-          body = '{var start=Date.now(),j=0;for(var i=0;i<500000;i++)j+=i&1;if(Date.now()-start>50){__B__=new Uint8Array(0);__DC__=[];throw new Error("Anti-debug");}}';
-          break;
-        case "DEBUG_BREAK":
-          body = "if(__D__)debugger;";
-          break;
-        case "SEGMENT_SWITCH":
-          body = "{var segId=__B__[st.i++]%__NUM_SEG__;if(segId!==__OT_CUR__&&segId<__NUM_SEG__){__OT_CUR__=segId;__OT__=__OT_ALL__[segId];}}";
-          break;
-        case "FAKE_ADD":
-          body = "{var fv=" + R + "(st);st.fakeStack.push(fv);}";
-          break;
-        case "FAKE_CALL":
-          body = "{" + R + "(st);st.fakeStack.push(Math.random());}";
-          break;
-        case "DESTRUCTURE_ARR":
-          body = "{var _dc=" + R + "(st);var _arr=st.s.pop();for(var _di=_dc-1;_di>=0;_di--){var _dn=" + SK + "(st);var _dv=_arr!=null?_arr[_di]:undefined;st.c.set(_dn,_dv);}}";
-          break;
-        case "DESTRUCTURE_OBJ":
-          body = "{var _dc=" + R + "(st);var _obj=st.s.pop();for(var _di=_dc-1;_di>=0;_di--){var _kn=" + SK + "(st);var _dn=" + SK + "(st);var _dv=_obj!=null?_obj[_kn]:undefined;st.c.set(_dn,_dv);}}";
-          break;
-        default:
-          body = "{}";
-          break;
-      }
-      lines.push("        case " + gi + ":" + body + " break;");
-    }
-    var asyncBody = lines.join("\n");
-    var syncBody = asyncBody.replace(/await /g, "");
-    return { async: asyncBody, sync: syncBody };
-  };
+  var generateDispatch = require_dispatch_gen();
   function BuildVM(input) {
-    var template = '(async function() {\n  var __D__ = {{DEBUG_FLAG}};\n  var __E__ = {{BYTECODE}};\n  var __S__ = {{BC_SEED}};\n  var __C__ = {{CONSTANTS}};\n  var __X__ = {{EXTERNAL_APIS}};\n\n  {{DEAD_CODE}}\n\n  var {{VM_VAR_G}} = typeof global !== "undefined" ? global : (typeof window !== "undefined" ? window : this);\n  var {{VM_FN_ST}} = {{VM_VAR_G}}.setTimeout;\n\n  var __BNC__ = {{BN_CHUNKS}};\n  var __BNK__ = {{BN_KEY}};\n  var __BN__ = [];\n  var __BNI__ = 0;\n  for (var __BNJ__ = 0; __BNJ__ < __BNC__.length; ) {\n    var __BNL__ = __BNC__[__BNJ__++];\n    var __BNS__ = "";\n    for (var __BNK2__ = 0; __BNK2__ < __BNL__; __BNK2__++) __BNS__ += String.fromCharCode(__BNC__[__BNJ__++] ^ ((__BNK__ + __BNI__ * 7 + __BNK2__ * 13) & 255));\n    __BN__.push(__BNS__);\n    __BNI__++;\n  }\n\n  var {{VM_VAR_GS}} = new Map();\n  var {{VM_VAR_BI}} = new Map();\n  for (var i = 0; i < __BN__.length; i++) {\n    var n = __BN__[i];\n    if (typeof {{VM_VAR_G}}[n] !== "undefined") {\n      var _fn = {{VM_VAR_G}}[n];\n      if (n === "setTimeout" || n === "clearTimeout" || n === "setInterval" || n === "clearInterval") _fn = _fn.bind({{VM_VAR_G}});\n      {{VM_VAR_BI}}.set(n, _fn); {{VM_VAR_GS}}.set(n, _fn);\n    }\n  }\n  var __EK__ = Object.keys(__X__);\n  for (var i = 0; i < __EK__.length; i++) {\n    var k = __EK__[i], v = __X__[k];\n    if (typeof v !== "undefined") {\n      if ((k === "setTimeout" || k === "clearTimeout" || k === "setInterval" || k === "clearInterval") && typeof v === "function") v = v.bind({{VM_VAR_G}});\n      {{VM_VAR_BI}}.set(k, v); {{VM_VAR_GS}}.set(k, v);\n    }\n  }\n\n  {{PLAIN_FUNCTIONS}}\n\n  {{PF_INIT}}\n\n  var {{VM_FN_D}} = function(s, l) {\n    var k = [];\n    for (var i = 0; i < l; i++) {\n      var h = s[i % s.length] ^ ((i * 157 + 63) & 255);\n      for (var j = 0; j < s.length; j++) h = ((h << 3) - h + s[j]) | 0;\n      k.push(h & 255);\n    }\n    return k;\n  };\n\n  var __K__ = {{VM_FN_D}}(__S__, Math.max(__E__.length, 40));\n  var __B__ = new Uint8Array(__E__.length);\n  for (var i = 0; i < __E__.length; i++) __B__[i] = __E__[i] ^ __K__[i % __K__.length];\n\n\n  var __OP__ = {{OP_XOR_KEY}};\n  for (var i = 0; i < __B__.length; i++) __B__[i] ^= __OP__;\n\n  var __DC__ = [];\n  for (var i = 0; i < __C__.length; i++) {\n    var c = __C__[i];\n    if (c && typeof c.l === "number" && c.c) {\n      __DC__[i] = { _e: true, _l: c.l, _c: c.c, _i: i };\n    } else if (c && typeof c.a === "number") {\n      var fd = { addr: c.a, params: c.p || [], async: c.as || false, isArrow: c.ia || false };\n      if (c.nm) fd.name = c.nm;\n      __DC__[i] = fd;\n    } else {\n      __DC__[i] = c;\n    }\n  }\n\n  function {{VM_FN_GC}}(idx) {\n    var v = __DC__[idx];\n    if (v && v._e) {\n      var s = "";\n      var __SK__ = {{STR_XOR_OFFSET}};\n      for (var j = 0; j < v._l; j++) s += String.fromCharCode(v._c[j] ^ ((__SK__ + v._i * 17 + j * 31 + 73) & 255));\n      return s;\n    }\n    if (v && typeof v === "object") {\n      if (v.__regex) return new RegExp(v.pattern, v.flags);\n      if (v.__bigint) return BigInt(v.value);\n      if (v.__undef) return undefined;\n      if (v.__null) return null;\n      if (v.__nan) return NaN;\n      if (v.__inf !== undefined) return v.__inf ? Infinity : -Infinity;\n      if (v.__taggedTemplate) { var arr = v.strings.slice(); arr.raw = v.raw; return arr; }\n    }\n    return v;\n  }\n\n  var __OT_ALL__ = {{OPCODE_TABLES}};\n  var __OT_CUR__ = 0;\n  var __OT__ = __OT_ALL__[0];\n  var __NUM_SEG__ = {{NUM_SEGMENTS}};\n  var __SEG_KEYS__ = {{SEGMENT_KEYS}};\n\n  var __V2G__ = {{VARIANT_TO_GROUP}};\n\n  var {{VM_VAR_VM}} = [];\n\n  function {{VM_FN_V}}(pScope) {\n    this.s = []; this.i = 0; this.c = new Map();\n    if (pScope) this.c.__p = pScope;\n    this.l = []; this.t = {{VM_VAR_GS}}; this.y = []; this._retv = undefined; this._throwing = false;\n    this.fakeStack = []; this._sk = 0;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_V}});\n\n  var __SK__ = {{STACK_KEY}};\n  function {{VM_FN_SP}}(st, v) {\n    st.s.push(v);\n  }\n  function {{VM_FN_SK}}(st) {\n    var v = st.s.pop();\n    if (typeof v === "number" && !isNaN(v) && isFinite(v)) {\n      st._sk = Math.max(0, (st._sk || 1) - 1);\n      var kb = __SK__[(st._sk || 0) % __SK__.length];\n      if (Number.isInteger(v) && v >= -2147483648 && v <= 2147483647) {\n        return v ^ ((kb << 24) | (kb << 16) | (kb << 8) | kb);\n      } else {\n        return v - kb * 0.000001;\n      }\n    } else if (typeof v === "string") {\n      st._sk = Math.max(0, (st._sk || 1) - 1);\n      var kb = __SK__[(st._sk || 0) % __SK__.length];\n      var ds = ""; for (var i = 0; i < v.length; i++) ds += String.fromCharCode(v.charCodeAt(i) ^ kb);\n      return ds;\n    }\n    return v;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_SP}}); {{VM_VAR_VM}}.push({{VM_FN_SK}});\n  function {{VM_FN_L}}(st, name) {\n    var s = st.c;\n    while (s) { if (s.has(name)) return s.get(name); s = s.__p; }\n    if ({{VM_VAR_GS}}.has(name)) return {{VM_VAR_GS}}.get(name);\n    if ({{VM_VAR_BI}}.has(name)) return {{VM_VAR_BI}}.get(name);\n    if (typeof {{VM_VAR_G}}[name] !== "undefined") return {{VM_VAR_G}}[name];\n    if (typeof __PF__ !== "undefined" && __PF__.hasOwnProperty(name)) return __PF__[name];\n    return undefined;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_L}});\n\n  function {{VM_FN_S}}(st, name, value) {\n    var s = st.c;\n    while (s) { if (s.has(name)) { s.set(name, value); if (typeof __PF__ !== "undefined" && __PF__.hasOwnProperty(name)) __PF__[name] = value; return; } s = s.__p; }\n    st.c.set(name, value);\n    if (typeof __PF__ !== "undefined" && __PF__.hasOwnProperty(name)) __PF__[name] = value;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_S}});\n\n  function {{VM_FN_SU}}(st, name, value) {\n    var s = st.c;\n    while (s) { if (s.has(name)) { s.set(name, value); if (typeof __PF__ !== "undefined" && __PF__.hasOwnProperty(name)) __PF__[name] = value; return; } s = s.__p; }\n    st.c.set(name, value);\n    if (typeof __PF__ !== "undefined" && __PF__.hasOwnProperty(name)) __PF__[name] = value;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_SU}});\n\n  function {{VM_FN_R}}(st) {\n    var v = (__B__[st.i] << 24) | (__B__[st.i + 1] << 16) | (__B__[st.i + 2] << 8) | __B__[st.i + 3];\n    st.i += 4; return v;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_R}});\n\n  async function {{VM_FN_XE}}(st) {\n    var M = 50000000, steps = 0;\n    while (st.i < __B__.length) {\n      try {\n      if (++steps > M) throw new Error("VM:max steps");\n      var opByte = __B__[st.i++] ^ ((st.i - 1) & 0xFF);\n      var gidx = __V2G__[opByte];\n      if (gidx === undefined) { __B__ = new Uint8Array(0); __DC__ = []; throw new Error("Unknown op:" + opByte); }\n\n      switch (gidx) {\n{{SWITCH_BODY}}\n        default:\n          __B__ = new Uint8Array(0); __DC__ = [];\n          throw new Error("Unknown op:" + opByte);\n      }\n      } catch (__vmErr__) {\n        if (st.y.length === 0) throw __vmErr__;\n        var __ti__ = st.y.pop();\n        st.s.push(__vmErr__);\n        if (__ti__.catchAddr >= 0) { st.i = __ti__.catchAddr; continue; }\n        if (__ti__.finallyAddr >= 0) { st.i = __ti__.finallyAddr; continue; }\n        throw __vmErr__;\n      }\n    }\n    return st.s.length ? st.s[st.s.length - 1] : undefined;\n  }\n  function {{VM_FN_XS}}(st) {\n    var M = 10000000, steps = 0;\n    while (st.i < __B__.length) {\n      try {\n      if (++steps > M) throw new Error("VM:max steps");\n      var opByte = __B__[st.i++] ^ ((st.i - 1) & 0xFF);\n      var gidx = __V2G__[opByte];\n      if (gidx === undefined) { __B__ = new Uint8Array(0); __DC__ = []; throw new Error("Unknown op:" + opByte); }\n\n      switch (gidx) {\n{{SWITCH_BODY_SYNC}}\n        default:\n          __B__ = new Uint8Array(0); __DC__ = [];\n          throw new Error("Unknown op:" + opByte);\n      }\n      } catch (__vmErr__) {\n        if (st.y.length === 0) throw __vmErr__;\n        var __ti__ = st.y.pop();\n        st.s.push(__vmErr__);\n        if (__ti__.catchAddr >= 0) { st.i = __ti__.catchAddr; continue; }\n        if (__ti__.finallyAddr >= 0) { st.i = __ti__.finallyAddr; continue; }\n        throw __vmErr__;\n      }\n    }\n    return st.s.length ? st.s[st.s.length - 1] : undefined;\n  }\n\n  {{VM_VAR_VM}}.push({{VM_FN_XE}});\n  {{VM_VAR_VM}}.push({{VM_FN_XS}});\n\n  function {{VM_FN_W}}(fd, ps) {\n    var cs = ps ? ps.c : {{VM_VAR_GS}};\n    var ct = ps ? ps.t : undefined;\n    var vf = function() {\n      var a = Array.prototype.slice.call(arguments);\n      return {{VM_FN_F}}(fd, a, cs, ct, this);\n    };\n    vf._v = true; vf._o = fd;\n    vf.prototype = fd.prototype || {}; vf._s = cs;\n    return vf;\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_W}});\n\n  function {{VM_FN_F}}(fd, a, cs, ct, cl) {\n    var st = new {{VM_FN_V}}(cs || {{VM_VAR_GS}});\n    st._cs = cs || null;\n    var params = fd.params || [];\n    for (var i = 0; i < params.length; i++) {\n      var p = params[i];\n      if (p.charAt(0) === "." && p.charAt(1) === "." && p.charAt(2) === ".") {\n        var rest = []; for (var j = i; j < a.length; j++) rest.push(a[j]);\n        st.c.set(p.slice(3), rest); break;\n      } else { st.c.set(p, i < a.length ? a[i] : undefined); }\n    }\n    st.c.set("arguments", a);\n    if (fd._this !== undefined) { st.t = fd._this; }\n    else if (fd.isArrow) { st.t = ct || {{VM_VAR_GS}}; }\n    else { st.t = cl || {{VM_VAR_GS}}; }\n    st.i = fd.addr;\n    if (fd.async) return {{VM_FN_XE}}(st); return {{VM_FN_XS}}(st);\n  }\n  {{VM_VAR_VM}}.push({{VM_FN_F}});\n\n  var eF = { addr: 0, params: [], _scope: {{VM_VAR_GS}} };\n  var __result__ = await {{VM_FN_F}}(eF, [], {{VM_VAR_GS}}, undefined, {{VM_VAR_GS}});\n  await new Promise(function(r) { {{VM_FN_ST}}(r, {{KEEPALIVE_MS}}); });\n  return __result__;\n})();';
+    var template = `(async function() {
+  var __D__ = {{DEBUG_FLAG}};
+  var __E__ = {{BYTECODE}};
+  var __S__ = {{BC_SEED}};
+  var __C__ = {{CONSTANTS}};
+  var __X__ = {{EXTERNAL_APIS}};
+
+  {{DEAD_CODE}}
+
+  var {{VM_VAR_G}} = typeof global !== "undefined" ? global : (typeof window !== "undefined" ? window : this);
+  var {{VM_FN_ST}} = {{VM_VAR_G}}.setTimeout;
+
+  var __BNC__ = {{BN_CHUNKS}};
+  var __BNK__ = {{BN_KEY}};
+  var __BN__ = [];
+  var __BNI__ = 0;
+  for (var __BNJ__ = 0; __BNJ__ < __BNC__.length; ) {
+    var __BNL__ = __BNC__[__BNJ__++];
+    var __BNS__ = "";
+    for (var __BNK2__ = 0; __BNK2__ < __BNL__; __BNK2__++) __BNS__ += String.fromCharCode(__BNC__[__BNJ__++] ^ ((__BNK__ + __BNI__ * 7 + __BNK2__ * 13) & 255));
+    __BN__.push(__BNS__);
+    __BNI__++;
+  }
+
+  var {{VM_VAR_GS}} = new Map();
+  var {{VM_VAR_BI}} = new Map();
+  for (var i = 0; i < __BN__.length; i++) {
+    var n = __BN__[i];
+    if (typeof {{VM_VAR_G}}[n] !== "undefined") {
+      var _fn = {{VM_VAR_G}}[n];
+      if (n === "setTimeout" || n === "clearTimeout" || n === "setInterval" || n === "clearInterval") _fn = _fn.bind({{VM_VAR_G}});
+      {{VM_VAR_BI}}.set(n, _fn); {{VM_VAR_GS}}.set(n, _fn);
+    }
+  }
+  var __EK__ = Object.keys(__X__);
+  for (var i = 0; i < __EK__.length; i++) {
+    var k = __EK__[i], v = __X__[k];
+    if (typeof v !== "undefined") {
+      if ((k === "setTimeout" || k === "clearTimeout" || k === "setInterval" || k === "clearInterval") && typeof v === "function") v = v.bind({{VM_VAR_G}});
+      {{VM_VAR_BI}}.set(k, v); {{VM_VAR_GS}}.set(k, v);
+    }
+  }
+
+  {{PLAIN_FUNCTIONS}}
+
+  {{PF_INIT}}
+
+  var {{VM_FN_D}} = function(s, l) {
+    var k = [];
+    for (var i = 0; i < l; i++) {
+      var h = s[i % s.length] ^ ((i * 157 + 63) & 255);
+      for (var j = 0; j < s.length; j++) h = ((h << 3) - h + s[j]) | 0;
+      k.push(h & 255);
+    }
+    return k;
+  };
+
+  var __K__ = {{VM_FN_D}}(__S__, Math.max(__E__.length, 40));
+  var __B__ = new Uint8Array(__E__.length);
+  for (var i = 0; i < __E__.length; i++) __B__[i] = __E__[i] ^ __K__[i % __K__.length];
+
+
+  var __OP__ = {{OP_XOR_KEY}};
+  for (var i = 0; i < __B__.length; i++) __B__[i] ^= __OP__;
+
+  var __DC__ = [];
+  for (var i = 0; i < __C__.length; i++) {
+    var c = __C__[i];
+    if (c && typeof c.l === "number" && c.c) {
+      __DC__[i] = { _e: true, _l: c.l, _c: c.c, _i: i };
+    } else if (c && typeof c.a === "number") {
+      var fd = { addr: c.a, params: c.p || [], async: c.as || false, isArrow: c.ia || false };
+      if (c.nm) fd.name = c.nm;
+      __DC__[i] = fd;
+    } else {
+      __DC__[i] = c;
+    }
+  }
+
+  function {{VM_FN_GC}}(idx) {
+    var v = __DC__[idx];
+    if (v && v._e) {
+      var s = "";
+      var __SK__ = {{STR_XOR_OFFSET}};
+      for (var j = 0; j < v._l; j++) s += String.fromCharCode(v._c[j] ^ ((__SK__ + v._i * 17 + j * 31 + 73) & 255));
+      return s;
+    }
+    if (v && typeof v === "object") {
+      if (v.__regex) return new RegExp(v.pattern, v.flags);
+      if (v.__bigint) return BigInt(v.value);
+      if (v.__undef) return undefined;
+      if (v.__null) return null;
+      if (v.__nan) return NaN;
+      if (v.__inf !== undefined) return v.__inf ? Infinity : -Infinity;
+      if (v.__taggedTemplate) { var arr = v.strings.slice(); arr.raw = v.raw; return arr; }
+    }
+    return v;
+  }
+
+  var __OT_ALL__ = {{OPCODE_TABLES}};
+  var __OT_CUR__ = 0;
+  var __OT__ = __OT_ALL__[0];
+  var __NUM_SEG__ = {{NUM_SEGMENTS}};
+  var __SEG_KEYS__ = {{SEGMENT_KEYS}};
+
+  var __V2G__ = {{VARIANT_TO_GROUP}};
+
+  var {{VM_VAR_VM}} = [];
+
+  function {{VM_FN_V}}(pScope) {
+    this.s = []; this.i = 0; this.c = new Map();
+    if (pScope) this.c.__p = pScope;
+    this.l = []; this.t = {{VM_VAR_GS}}; this.y = []; this._retv = undefined; this._throwing = false;
+    this.fakeStack = []; this._sk = 0;
+  }
+  {{VM_VAR_VM}}.push({{VM_FN_V}});
+
+  var __SK__ = {{STACK_KEY}};
+  function {{VM_FN_SP}}(st, v) {
+    st.s.push(v);
+  }
+  function {{VM_FN_SK}}(st) {
+    var v = st.s.pop();
+    if (typeof v === "number" && !isNaN(v) && isFinite(v)) {
+      st._sk = Math.max(0, (st._sk || 1) - 1);
+      var kb = __SK__[(st._sk || 0) % __SK__.length];
+      if (Number.isInteger(v) && v >= -2147483648 && v <= 2147483647) {
+        return v ^ ((kb << 24) | (kb << 16) | (kb << 8) | kb);
+      } else {
+        return v - kb * 0.000001;
+      }
+    } else if (typeof v === "string") {
+      st._sk = Math.max(0, (st._sk || 1) - 1);
+      var kb = __SK__[(st._sk || 0) % __SK__.length];
+      var ds = ""; for (var i = 0; i < v.length; i++) ds += String.fromCharCode(v.charCodeAt(i) ^ kb);
+      return ds;
+    }
+    return v;
+  }
+  {{VM_VAR_VM}}.push({{VM_FN_SP}}); {{VM_VAR_VM}}.push({{VM_FN_SK}});
+  function {{VM_FN_L}}(st, name) {
+    var s = st.c;
+    while (s) { if (s.has(name)) return s.get(name); s = s.__p; }
+    if ({{VM_VAR_GS}}.has(name)) return {{VM_VAR_GS}}.get(name);
+    if ({{VM_VAR_BI}}.has(name)) return {{VM_VAR_BI}}.get(name);
+    if (typeof {{VM_VAR_G}}[name] !== "undefined") return {{VM_VAR_G}}[name];
+    if (typeof __PF__ !== "undefined" && __PF__.hasOwnProperty(name)) return __PF__[name];
+    return undefined;
+  }
+  {{VM_VAR_VM}}.push({{VM_FN_L}});
+
+  function {{VM_FN_S}}(st, name, value) {
+    var s = st.c;
+    while (s) { if (s.has(name)) { s.set(name, value); if (typeof __PF__ !== "undefined" && __PF__.hasOwnProperty(name)) __PF__[name] = value; return; } s = s.__p; }
+    st.c.set(name, value);
+    if (typeof __PF__ !== "undefined" && __PF__.hasOwnProperty(name)) __PF__[name] = value;
+  }
+  {{VM_VAR_VM}}.push({{VM_FN_S}});
+
+  function {{VM_FN_SU}}(st, name, value) {
+    var s = st.c;
+    while (s) { if (s.has(name)) { s.set(name, value); if (typeof __PF__ !== "undefined" && __PF__.hasOwnProperty(name)) __PF__[name] = value; return; } s = s.__p; }
+    st.c.set(name, value);
+    if (typeof __PF__ !== "undefined" && __PF__.hasOwnProperty(name)) __PF__[name] = value;
+  }
+  {{VM_VAR_VM}}.push({{VM_FN_SU}});
+
+  function {{VM_FN_R}}(st) {
+    var v = (__B__[st.i] << 24) | (__B__[st.i + 1] << 16) | (__B__[st.i + 2] << 8) | __B__[st.i + 3];
+    st.i += 4; return v;
+  }
+  {{VM_VAR_VM}}.push({{VM_FN_R}});
+
+  async function {{VM_FN_XE}}(st) {
+    var M = 50000000, steps = 0;
+    while (st.i < __B__.length) {
+      try {
+      if (++steps > M) throw new Error("VM:max steps");
+      var opByte = __B__[st.i++] ^ ((st.i - 1) & 0xFF);
+      var gidx = __V2G__[opByte];
+      if (gidx === undefined) { __B__ = new Uint8Array(0); __DC__ = []; throw new Error("Unknown op:" + opByte); }
+
+      switch (gidx) {
+{{SWITCH_BODY}}
+        default:
+          __B__ = new Uint8Array(0); __DC__ = [];
+          throw new Error("Unknown op:" + opByte);
+      }
+      } catch (__vmErr__) {
+        if (st.y.length === 0) throw __vmErr__;
+        var __ti__ = st.y.pop();
+        st.s.push(__vmErr__);
+        if (__ti__.catchAddr >= 0) { st.i = __ti__.catchAddr; continue; }
+        if (__ti__.finallyAddr >= 0) { st.i = __ti__.finallyAddr; continue; }
+        throw __vmErr__;
+      }
+    }
+    return st.s.length ? st.s[st.s.length - 1] : undefined;
+  }
+  function {{VM_FN_XS}}(st) {
+    var M = 10000000, steps = 0;
+    while (st.i < __B__.length) {
+      try {
+      if (++steps > M) throw new Error("VM:max steps");
+      var opByte = __B__[st.i++] ^ ((st.i - 1) & 0xFF);
+      var gidx = __V2G__[opByte];
+      if (gidx === undefined) { __B__ = new Uint8Array(0); __DC__ = []; throw new Error("Unknown op:" + opByte); }
+
+      switch (gidx) {
+{{SWITCH_BODY_SYNC}}
+        default:
+          __B__ = new Uint8Array(0); __DC__ = [];
+          throw new Error("Unknown op:" + opByte);
+      }
+      } catch (__vmErr__) {
+        if (st.y.length === 0) throw __vmErr__;
+        var __ti__ = st.y.pop();
+        st.s.push(__vmErr__);
+        if (__ti__.catchAddr >= 0) { st.i = __ti__.catchAddr; continue; }
+        if (__ti__.finallyAddr >= 0) { st.i = __ti__.finallyAddr; continue; }
+        throw __vmErr__;
+      }
+    }
+    return st.s.length ? st.s[st.s.length - 1] : undefined;
+  }
+
+  {{VM_VAR_VM}}.push({{VM_FN_XE}});
+  {{VM_VAR_VM}}.push({{VM_FN_XS}});
+
+  function {{VM_FN_W}}(fd, ps) {
+    var cs = ps ? ps.c : {{VM_VAR_GS}};
+    var ct = ps ? ps.t : undefined;
+    var vf = function() {
+      var a = Array.prototype.slice.call(arguments);
+      return {{VM_FN_F}}(fd, a, cs, ct, this);
+    };
+    vf._v = true; vf._o = fd;
+    vf.prototype = fd.prototype || {}; vf._s = cs; vf._ct = ct;
+    if (fd.name) { try { Object.defineProperty(vf, 'name', { value: fd.name, writable: false, configurable: true }); } catch(e) {} }
+    if (fd.params) { try { Object.defineProperty(vf, 'length', { value: fd.params.length, writable: false, configurable: true }); } catch(e) {} }
+    return vf;
+  }
+  {{VM_VAR_VM}}.push({{VM_FN_W}});
+
+  function {{VM_FN_F}}(fd, a, cs, ct, cl) {
+    var st = new {{VM_FN_V}}(cs || {{VM_VAR_GS}});
+    st._cs = cs || null;
+    var params = fd.params || [];
+    for (var i = 0; i < params.length; i++) {
+      var p = params[i];
+      if (p.charAt(0) === "." && p.charAt(1) === "." && p.charAt(2) === ".") {
+        var rest = []; for (var j = i; j < a.length; j++) rest.push(a[j]);
+        st.c.set(p.slice(3), rest); break;
+      } else { st.c.set(p, i < a.length ? a[i] : undefined); }
+    }
+    if (!fd.isArrow) st.c.set("arguments", a);
+    if (fd._this !== undefined) { st.t = fd._this; }
+    else if (fd.isArrow) { st.t = ct || {{VM_VAR_GS}}; }
+    else { st.t = cl || {{VM_VAR_GS}}; }
+    st.i = fd.addr;
+    if (fd.async) return {{VM_FN_XE}}(st); return {{VM_FN_XS}}(st);
+  }
+  {{VM_VAR_VM}}.push({{VM_FN_F}});
+
+  Object.defineProperty(Object.prototype, '__defineGS__', { value: function(key, fn, kind) {
+    var desc = { configurable: true, enumerable: true };
+    if (kind === 'get') desc.get = fn;
+    else desc.set = fn;
+    Object.defineProperty(this, key, desc);
+  }, configurable: true, writable: true });
+
+  var eF = { addr: 0, params: [], _scope: {{VM_VAR_GS}} };
+  var __result__ = await {{VM_FN_F}}(eF, [], {{VM_VAR_GS}}, undefined, {{VM_VAR_GS}});
+  await new Promise(function(r) { {{VM_FN_ST}}(r, {{KEEPALIVE_MS}}); });
+  return __result__;
+})();`;
     var opts = {
       mangleIdentifiers: true,
       injectJunkExpressions: true,
@@ -9057,7 +9594,7 @@ var Obscura = (() => {
       finalBytecode = xorEncrypt(input.bytecode, key);
     }
     var finalConstants = obfuscateConstants(input.constants);
-    var builtinNames = ["Object", "Array", "String", "Number", "Boolean", "Function", "RegExp", "Date", "Error", "Math", "JSON", "Promise", "Map", "Set", "Symbol", "Infinity", "NaN", "undefined", "eval", "isFinite", "isNaN", "parseFloat", "parseInt", "decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent", "console", "setTimeout", "clearTimeout", "setInterval", "clearInterval"];
+    var builtinNames = ["Object", "Array", "String", "Number", "Boolean", "Function", "RegExp", "Date", "Error", "Math", "JSON", "Promise", "Map", "Set", "Symbol", "Infinity", "NaN", "undefined", "eval", "isFinite", "isNaN", "parseFloat", "parseInt", "decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent", "TypeError", "URIError", "SyntaxError", "RangeError", "ReferenceError", "EvalError", "TypeError", "URIError", "SyntaxError", "RangeError", "ReferenceError", "EvalError", "console", "setTimeout", "clearTimeout", "setInterval", "clearInterval"];
     var bnKey = seed[3] ^ seed[11] ^ seed[19] ^ seed[27];
     var bnChunks = [];
     for (var bi = 0; bi < builtinNames.length; bi++) {
@@ -9385,9 +9922,9 @@ var Obscura = (() => {
       excludedNames.forEach(function(en) {
         freeVars.delete(en);
       });
-      var builtins = /* @__PURE__ */ new Set(["undefined", "NaN", "Infinity", "console", "Math", "JSON", "Promise", "Object", "Array", "String", "Number", "Boolean", "Function", "RegExp", "Date", "Error", "Map", "Set", "Symbol", "parseInt", "parseFloat", "isNaN", "isFinite", "eval", "decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent"]);
-      builtins.forEach(function(bi) {
-        freeVars.delete(bi);
+      var builtins = /* @__PURE__ */ new Set(["undefined", "NaN", "Infinity", "console", "Math", "JSON", "Promise", "Object", "Array", "String", "Number", "Boolean", "Function", "RegExp", "Date", "Error", "Map", "Set", "Symbol", "parseInt", "parseFloat", "isNaN", "isFinite", "eval", "decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent", "TypeError", "URIError", "SyntaxError", "RangeError", "ReferenceError", "EvalError"]);
+      builtins.forEach(function(bi2) {
+        freeVars.delete(bi2);
       });
       freeVars.forEach(function(fv) {
         allFreeVars.add(fv);
@@ -9412,6 +9949,10 @@ var Obscura = (() => {
     allFreeVars.forEach(function(fv) {
       preserveSet.add(fv);
     });
+    var allBuiltins = ["undefined", "NaN", "Infinity", "console", "Math", "JSON", "Promise", "Object", "Array", "String", "Number", "Boolean", "Function", "RegExp", "Date", "Error", "Map", "Set", "Symbol", "parseInt", "parseFloat", "isNaN", "isFinite", "eval", "decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent", "TypeError", "URIError", "SyntaxError", "RangeError", "ReferenceError", "EvalError"];
+    for (var bi = 0; bi < allBuiltins.length; bi++) preserveSet.add(allBuiltins[bi]);
+    var allBuiltins = ["undefined", "NaN", "Infinity", "console", "Math", "JSON", "Promise", "Object", "Array", "String", "Number", "Boolean", "Function", "RegExp", "Date", "Error", "Map", "Set", "Symbol", "parseInt", "parseFloat", "isNaN", "isFinite", "eval", "decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent", "TypeError", "URIError", "SyntaxError", "RangeError", "ReferenceError", "EvalError"];
+    for (var bi = 0; bi < allBuiltins.length; bi++) preserveSet.add(allBuiltins[bi]);
     var compileResult = compiler.Compile(filteredSource, preserveSet, opts.injectJunkExpressions);
     var bytecode = compileResult.bytecode;
     var constants = compileResult.constants;

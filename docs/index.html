@@ -313,35 +313,6 @@
     @media (max-width: 640px) {
       .toast-message { white-space: normal; max-width: 90%; text-align: center; }
     }
-.notification-toast {
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  max-width: 420px;
-  background: #1c1c1c;
-  border: 1px solid #e53e3e;
-  border-radius: 8px;
-  padding: 14px 18px;
-  color: #fcd7d7;
-  font-size: 13px;
-  line-height: 1.5;
-  z-index: 9999;
-  opacity: 0;
-  transform: translateY(-12px);
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  box-shadow: 0 4px 24px rgba(229,62,62,0.18);
-  pointer-events: none;
-}
-.notification-toast.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-.notification-toast strong {
-  display: block;
-  color: #fc8181;
-  margin-bottom: 4px;
-  font-weight: 600;
-}
 </style>
 </head>
 <body>
@@ -412,7 +383,6 @@
   </aside>
 </div>
 
-<script src="obscura-browser.js"></script>
 <script src="obscura-browser.js"></script>
 <script>
   var PRO_FEATURES = [
@@ -592,12 +562,10 @@
 
   function analyzeSource(source) {
     var warnings = [];
-    if (/function\s*\*/.test(source)) warnings.push('Generator functions (function*) are not supported and will fail.');
-    if (/async\s*\*/.test(source)) warnings.push('Async generators are not supported and will fail.');
-    if (/\beval\s*\(/.test(source)) warnings.push('eval() calls cannot work inside the VM.');
-    if (/\bnew\s+Function\s*\(/.test(source)) warnings.push('new Function() cannot work inside the VM.');
-    var taggedMatch = source.match(/([a-zA-Z_$][a-zA-Z0-9_$]*)\s*`/);
-    if (taggedMatch && taggedMatch[1] !== 'function') warnings.push('Tagged template literals may not work correctly.');
+    if (/\b(let|const)\s*\[[^\]]*\]\s*=/.test(source)) warnings.push('Destructuring declarations detected. Default values may fail for array patterns.');
+    if (/\[[^,\]]*,\s*,[^\]]*\]/.test(source)) warnings.push('Sparse arrays detected. "in" operator may return incorrect results for holes.');
+    if (/\b(let|const)\s+\w+\s*=/.test(source)) warnings.push('let/const: temporal dead zone not enforced. Accessing before declaration returns undefined.');
+    if (/["']use strict["']/.test(source)) warnings.push('"use strict" detected but VM runs in sloppy mode. this will be coerced to global, not undefined.');
     return warnings;
   }
 
@@ -626,7 +594,7 @@
       document.getElementById('outputSize').textContent = (data.stats.outputSize / 1024).toFixed(1) + ' KB';
       document.getElementById('statBytes').textContent = data.stats.bytecodeSize;
       document.getElementById('statConstants').textContent = data.stats.constantCount;
-      document.getElementById('statWarnings').textContent = data.stats.warnings.length;
+      document.getElementById('statWarnings').textContent = data.stats.warnings.length + (data.stats.warnings.length > 0 ? ' (check console)' : ''); console.log('Compiler warnings:', data.stats.warnings);
       document.getElementById('statExcluded').textContent = data.stats.excludedFunctions.length > 0 ? data.stats.excludedFunctions.join(', ') : 'none';
       var downloadBar = document.getElementById('downloadBar');
       downloadBar.classList.add('visible');
@@ -637,11 +605,9 @@
       document.getElementById('editorPanel').classList.add('hidden');
       document.getElementById('outputPanel').classList.remove('hidden');
     } catch (e) {
-      var msg = e.message || String(e);
-      document.getElementById('output').textContent = 'Error: ' + msg;
+      document.getElementById('output').textContent = 'Error: ' + e.message;
       setStatus('error', 'Failed');
       document.getElementById('downloadBar').classList.remove('visible');
-      showNotification(msg);
     }
     btn.disabled = false;
   }
@@ -660,35 +626,26 @@
     outputBox.classList.remove('hidden'); runResult.textContent = ''; runStatus.textContent = 'running...'; runStatus.className = '';
     try {
       var logs = [];
-      var _origLog = console.log;
-      var _origError = console.error;
-      var _origWarn = console.warn;
-      console.log = function() { logs.push(Array.prototype.map.call(arguments, function(a) { return typeof a === 'object' && a !== null ? JSON.stringify(a) : String(a); }).join(' ')); };
-      console.error = function() { logs.push('[error] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); };
-      console.warn = function() { logs.push('[warn] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); };
-      var _origSetTimeout = window.setTimeout;
-      var _origClearTimeout = window.clearTimeout;
-      var _origSetInterval = window.setInterval;
-      var _origClearInterval = window.clearInterval;
-      window.setTimeout = function(fn, ms) { return _origSetTimeout(fn, Math.min(ms || 0, 5000)); };
-      window.setInterval = function() { return 0; };
-      window.clearTimeout = _origClearTimeout;
-      window.clearInterval = _origClearInterval;
-      var fn = new Function(lastResult.code);
-      var result = fn();
-      window.setTimeout = _origSetTimeout;
-      window.setInterval = _origSetInterval;
-      window.clearTimeout = _origClearTimeout;
-      window.clearInterval = _origClearInterval;
-      console.log = _origLog;
-      console.error = _origError;
-      console.warn = _origWarn;
+      var sandbox = {
+        console: {
+          log: function() { logs.push(Array.prototype.map.call(arguments, function(a) { return typeof a === 'object' && a !== null ? JSON.stringify(a) : String(a); }).join(' ')); },
+          error: function() { logs.push('[error] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); },
+          warn: function() { logs.push('[warn] ' + Array.prototype.map.call(arguments, function(a) { return String(a); }).join(' ')); }
+        },
+        setTimeout: function(fn, ms) { return setTimeout(fn, Math.min(ms || 0, 5000)); },
+        setInterval: function() { return 0; },
+        Promise: Promise
+      };
+      sandbox.global = sandbox;
+      sandbox.globalThis = sandbox;
+      var fn = new Function('console', 'setTimeout', 'setInterval', 'Promise', 'global', 'globalThis', lastResult.code);
+      var result = fn(sandbox.console, sandbox.setTimeout, sandbox.setInterval, sandbox.Promise, sandbox, sandbox);
       if (result && typeof result.then === 'function') {
         result.then(function() {
           runResult.textContent = logs.join('\n') || '(no output)';
           runStatus.textContent = 'done'; runStatus.className = '';
         }).catch(function(e) {
-          runResult.textContent = (e && e.message) || String(e);
+          runResult.textContent = e.message || String(e);
           runStatus.textContent = 'error'; runStatus.className = 'error';
         });
       } else {
@@ -698,22 +655,8 @@
         }, 100);
       }
     } catch (e) {
-      runResult.textContent = e.message || String(e); runStatus.textContent = 'error'; runStatus.className = 'error';
+      runResult.textContent = e.message; runStatus.textContent = 'error'; runStatus.className = 'error';
     }
-  }
-
-  function showNotification(msg) {
-    var existing = document.querySelector('.notification-toast');
-    if (existing) existing.remove();
-    var toast = document.createElement('div');
-    toast.className = 'notification-toast';
-    toast.innerHTML = '<strong>Obfuscation failed</strong>' + msg;
-    document.body.appendChild(toast);
-    requestAnimationFrame(function() { toast.classList.add('visible'); });
-    setTimeout(function() {
-      toast.classList.remove('visible');
-      setTimeout(function() { if (toast.parentNode) toast.remove(); }, 300);
-    }, 6000);
   }
 
   function clearAll() {

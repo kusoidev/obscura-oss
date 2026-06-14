@@ -283,7 +283,7 @@ export class BytecodeCompiler {
         if (node.operator === 'delete' && node.argument.type === 'MemberExpression') {
           this.compileNode(node.argument.object);
           if (node.argument.computed) this.compileNode(node.argument.property);
-          else this.emitPoly('PUSH_CONST', this.addConstant(node.argument.property.name));
+          else this.emitPoly('PUSH_CONST', this.addConstant(this.getPropName(node.argument.property)));
           this.emitPoly('DELETE');
         } else {
           this.compileNode(node.argument); this.emitUnaryOp(node.operator);
@@ -518,11 +518,11 @@ export class BytecodeCompiler {
       if (isComputed) { this.compileNode(node.left.property); this.emitPoly('DECLARE_VAR', this.addConstant(tmpIdx!)); }
       this.emitPoly('PUSH_VAR', this.addConstant(tmpObj));
       if (isComputed) { this.emitPoly('PUSH_VAR', this.addConstant(tmpIdx!)); this.emitPoly('GET_INDEX'); }
-      else this.emitPoly('GET_PROP', this.addConstant(node.left.property.name));
+      else this.emitPoly('GET_PROP', this.addConstant(this.getPropName(node.left.property)));
       this.compileNode(node.right); this.emitBinaryOp(op.slice(0, -1)); this.emitPoly('DECLARE_VAR', this.addConstant(tmpVal));
       this.emitPoly('PUSH_VAR', this.addConstant(tmpObj));
       if (isComputed) { this.emitPoly('PUSH_VAR', this.addConstant(tmpIdx!)); this.emitPoly('PUSH_VAR', this.addConstant(tmpVal)); this.emitPoly('SET_INDEX'); }
-      else { this.emitPoly('PUSH_VAR', this.addConstant(tmpVal)); this.emitPoly('SET_PROP', this.addConstant(node.left.property.name)); }
+      else { this.emitPoly('PUSH_VAR', this.addConstant(tmpVal)); this.emitPoly('SET_PROP', this.addConstant(this.getPropName(node.left.property))); }
     }
   }
 

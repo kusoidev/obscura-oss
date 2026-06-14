@@ -7,6 +7,7 @@ dist/
 # Compiled JS (except runtime template)
 *.js
 !src/runtime/async-vm-template.js
+!src/runtime/dispatch-gen.js
 !src/runtime/vm-template.js
 
 # TypeScript declaration maps
