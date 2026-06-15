@@ -81,9 +81,35 @@ export class BytecodeCompiler {
   private maybeInjectFakeOps(): void {}
 
   private compileObjectPatternDestructure(pattern: any, sourceVar: string): void {
+    // First, collect all property names for RestElement handling
+    var propertyNames: string[] = [];
     for (var _pi = 0; _pi < pattern.properties.length; _pi++) {
       var _prop = pattern.properties[_pi];
       if (_prop.type === 'RestElement') continue;
+      var _keyName = _prop.key.name || _prop.key.value;
+      propertyNames.push(_keyName);
+    }
+    
+    for (var _pi = 0; _pi < pattern.properties.length; _pi++) {
+      var _prop = pattern.properties[_pi];
+      if (_prop.type === 'RestElement') {
+        // Handle { ...rest } where rest is an Identifier
+        if (_prop.argument.type === 'Identifier') {
+          // Create a new object and copy all properties from source
+          this.emitPoly('NEW_OBJ');
+          this.emitPoly('PUSH_VAR', this.addConstant(sourceVar));
+          this.emitPoly('OBJ_SPREAD');
+          // Delete each named property from the rest object
+          for (var _delIdx = 0; _delIdx < propertyNames.length; _delIdx++) {
+            this.emitPoly('DUP');
+            this.emitPoly('PUSH_CONST', this.addConstant(propertyNames[_delIdx]));
+            this.emitPoly('DELETE');
+            this.emitPoly('POP');
+          }
+          this.emitPoly('DECLARE_VAR', this.addConstant(_prop.argument.name));
+        }
+        continue;
+      }
       var _keyName = _prop.key.name || _prop.key.value;
       if (_prop.value.type === 'Identifier') {
         this.emitPoly('PUSH_VAR', this.addConstant(sourceVar));

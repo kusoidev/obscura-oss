@@ -1,5 +1,7 @@
 import { OP_GROUPS } from '../compiler/Opcode';
 import { ObfuscatorOptions } from '../config';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export interface BuildInput {
   bytecode: number[];
