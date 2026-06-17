@@ -211,7 +211,7 @@ function hashStringLiterals(source: string): { source: string; hashFn: string } 
   function collect(node: any) {
     if (!node || typeof node !== "object") return;
     if (Array.isArray(node)) { for (var ci = 0; ci < node.length; ci++) collect(node[ci]); return; }
-    if (node.type === "VariableDeclaration") {
+    if (node.type === "VariableDeclaration" && node.kind === "const") {
       for (var di = 0; di < node.declarations.length; di++) {
         var d: any = node.declarations[di];
         if (d.init && d.init.type === "Literal" && typeof d.init.value === "string" && d.id && d.id.type === "Identifier") {
