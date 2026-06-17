@@ -7,6 +7,8 @@
 
   {{DEAD_CODE}}
 
+  {{HASH_FN}}
+
   var {{VM_VAR_G}} = typeof global !== "undefined" ? global : (typeof window !== "undefined" ? window : this);
   var {{VM_FN_ST}} = {{VM_VAR_G}}.setTimeout;
 

@@ -203,12 +203,111 @@ function collectTopLevelDeclarations(ast: any): { name: string; init: string | n
   return decls;
 }
 
+function hashStringLiterals(source: string): { source: string; hashFn: string } {
+  var ast = acorn.parse(source, { ecmaVersion: 2022, sourceType: "module", locations: true });
+  var constMap: any = {};
+  var replaced = new Set();
+
+  function collect(node: any) {
+    if (!node || typeof node !== "object") return;
+    if (Array.isArray(node)) { for (var ci = 0; ci < node.length; ci++) collect(node[ci]); return; }
+    if (node.type === "VariableDeclaration") {
+      for (var di = 0; di < node.declarations.length; di++) {
+        var d: any = node.declarations[di];
+        if (d.init && d.init.type === "Literal" && typeof d.init.value === "string" && d.id && d.id.type === "Identifier") {
+          constMap[d.id.name] = d.init.value;
+        }
+      }
+    }
+    for (var k in node) {
+      if (k === "type" || k === "start" || k === "end" || k === "loc" || k === "range") continue;
+      collect(node[k]);
+    }
+  }
+  collect(ast);
+
+  function replace(node: any) {
+    if (!node || typeof node !== "object") return;
+    if (Array.isArray(node)) { for (var ri = 0; ri < node.length; ri++) replace(node[ri]); return; }
+    if (node.type === "BinaryExpression" && (node.operator === "===" || node.operator === "!==")) {
+      var didReplace = false;
+      if (node.right.type === "Identifier" && constMap[node.right.name] !== undefined) {
+        replaced.add(node.right.name);
+        node.left = wrapInHash(node.left);
+        node.right = { type: "Literal", value: djb2(constMap[node.right.name]), raw: JSON.stringify(djb2(constMap[node.right.name])) };
+        didReplace = true;
+      } else if (node.left.type === "Identifier" && constMap[node.left.name] !== undefined) {
+        replaced.add(node.left.name);
+        node.right = wrapInHash(node.right);
+        node.left = { type: "Literal", value: djb2(constMap[node.left.name]), raw: JSON.stringify(djb2(constMap[node.left.name])) };
+        didReplace = true;
+      } else if (node.right.type === "Literal" && typeof node.right.value === "string") {
+        node.left = wrapInHash(node.left);
+        node.right = { type: "Literal", value: djb2(node.right.value), raw: JSON.stringify(djb2(node.right.value)) };
+        didReplace = true;
+      } else if (node.left.type === "Literal" && typeof node.left.value === "string") {
+        node.right = wrapInHash(node.right);
+        node.left = { type: "Literal", value: djb2(node.left.value), raw: JSON.stringify(djb2(node.left.value)) };
+        didReplace = true;
+      }
+      if (didReplace) replaced.add("__h__");
+    }
+    for (var k in node) {
+      if (k === "type" || k === "start" || k === "end" || k === "loc" || k === "range") continue;
+      replace(node[k]);
+    }
+  }
+  function wrapInHash(expr: any): any {
+    return {
+      type: "CallExpression",
+      callee: { type: "Identifier", name: "__h__" },
+      arguments: [expr],
+    };
+  }
+  replace(ast);
+
+  if (replaced.size === 0) return { source: source, hashFn: "" };
+
+  function removeUnused(node: any) {
+    if (!node || typeof node !== "object") return;
+    if (Array.isArray(node)) { for (var ui = 0; ui < node.length; ui++) removeUnused(node[ui]); return; }
+    if (node.body && Array.isArray(node.body)) {
+      node.body = node.body.filter(function(stmt: any) {
+        if (stmt.type === "VariableDeclaration") {
+          var kept: any[] = [];
+          for (var di = 0; di < stmt.declarations.length; di++) {
+            var d = stmt.declarations[di];
+            if (d.id && d.id.type === "Identifier" && replaced.has(d.id.name) && d.init && d.init.type === "Literal" && typeof d.init.value === "string") continue;
+            kept.push(d);
+          }
+          if (kept.length === 0) return false;
+          stmt.declarations = kept;
+          return true;
+        }
+        return true;
+      });
+    }
+    for (var k in node) {
+      if (k === "type" || k === "start" || k === "end" || k === "loc" || k === "range") continue;
+      removeUnused(node[k]);
+    }
+  }
+  removeUnused(ast);
+
+  return { source: astring.generate(ast), hashFn: "function __h__(s){var h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return (h>>>0).toString(16);}" };
+}
+function djb2(s: string): string { var h = 5381; for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(16); }
+
 export function ObfuscateSource(source: string, options?: Partial<ObfuscatorOptions>): ObfuscateResult {
   var opts: ObfuscatorOptions = { ...defaultOptions(), ...options };
   var warnings: string[] = [];
 
+  var hashResult = hashStringLiterals(source);
+  var compileSource = hashResult.source;
+  var hashFnStr = hashResult.hashFn;
+
   var comments: any[] = [];
-  var ast = acorn.parse(source, {
+  var ast = acorn.parse(compileSource, {
     ecmaVersion: 2022,
     sourceType: 'module',
     locations: true,
@@ -273,9 +372,7 @@ export function ObfuscateSource(source: string, options?: Partial<ObfuscatorOpti
   var compiler = new BytecodeCompiler();
   var preserveSet = new Set(functionNames);
   allFreeVars.forEach(function(fv) { preserveSet.add(fv); });
-  var allBuiltins = ['undefined','NaN','Infinity','console','Math','JSON','Promise','Object','Array','String','Number','Boolean','Function','RegExp','Date','Error','Map','Set','Symbol','parseInt','parseFloat','isNaN','isFinite','eval','decodeURI','decodeURIComponent','encodeURI','encodeURIComponent','TypeError','URIError','SyntaxError','RangeError','ReferenceError','EvalError'];
-  for (var bi = 0; bi < allBuiltins.length; bi++) preserveSet.add(allBuiltins[bi]);
-  var allBuiltins = ['undefined','NaN','Infinity','console','Math','JSON','Promise','Object','Array','String','Number','Boolean','Function','RegExp','Date','Error','Map','Set','Symbol','parseInt','parseFloat','isNaN','isFinite','eval','decodeURI','decodeURIComponent','encodeURI','encodeURIComponent','TypeError','URIError','SyntaxError','RangeError','ReferenceError','EvalError'];
+  var allBuiltins = ['undefined','NaN','Infinity','console','Math','JSON','Promise','Object','Array','String','Number','Boolean','Function','RegExp','Date','Error','Map','Set','Symbol','parseInt','parseFloat','isNaN','isFinite','eval','decodeURI','decodeURIComponent','encodeURI','encodeURIComponent','TypeError','URIError','SyntaxError','RangeError','ReferenceError','EvalError','__h__'];
   for (var bi = 0; bi < allBuiltins.length; bi++) preserveSet.add(allBuiltins[bi]);
   var compileResult = compiler.Compile(filteredSource, preserveSet, opts.injectJunkExpressions);
   var bytecode = compileResult.bytecode;
@@ -293,6 +390,7 @@ export function ObfuscateSource(source: string, options?: Partial<ObfuscatorOpti
     options: opts,
     plainFunctions: plainFunctions,
     pfInitCode: pfInitCode,
+    hashFnStr: hashFnStr,
   });
 
   var outputCode = vmCode;
