@@ -143,3 +143,11 @@ Purchasing a license also gets you **Obscura Pro**, which adds the full protecti
 - **Anti-debug traps** — debugger detection and timing checks
 - **Stack encoding** — XOR-encoded VM stack values to complicate memory inspection
 - **Opaque predicates** — dead conditional branches interwoven with real code
+
+## Contact
+
+For commercial licensing, Pro access, support, or general questions, contact me on Discord:
+
+**Discord:** `@kyushoo`
+
+Please include “Obscura” in your message and, if relevant, whether you’re asking about commercial licensing, Pro, or a bug report.
